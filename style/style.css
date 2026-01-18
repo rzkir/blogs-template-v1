@@ -51,3 +51,15 @@
         transform: translateY(0) scale(1);
     }
 }
+
+/* Gambar di konten (editor Quill & tampilan post) – sumber bebas */
+.ql-editor img,
+.post-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 0.5rem;
+}
+.ql-editor img {
+    margin: 0.5rem 0;
+}

@@ -3,3 +3,7 @@
 
 #migration
 migration/
+
+#ai-helper.js
+js/ai-helper.js
+js/ai-endpoint.js

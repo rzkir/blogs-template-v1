@@ -1,5 +1,4 @@
 <?php
-// Get user info and messages (session should already be started by the including file)
 $user = $_SESSION['user'] ?? null;
 $successMessage = $_SESSION['success'] ?? '';
 $errorMessage = $_SESSION['error'] ?? '';
@@ -113,5 +112,6 @@ unset($_SESSION['success'], $_SESSION['error']);
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="/js/ai-endpoint.js"></script>
     <script src="/js/main.js"></script>
     <script src="/js/toast.js"></script>
