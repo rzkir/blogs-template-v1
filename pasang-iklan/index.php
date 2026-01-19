@@ -2,6 +2,11 @@
 session_start();
 require_once __DIR__ . '/../config/db.php';
 
+// Get flash messages
+$successMessage = $_SESSION['success'] ?? '';
+$errorMessage = $_SESSION['error'] ?? '';
+unset($_SESSION['success'], $_SESSION['error']);
+
 $pageTitle = 'Pasang Iklan - Blog News';
 include __DIR__ . '/../components/Header.php';
 ?>
@@ -26,9 +31,24 @@ include __DIR__ . '/../components/Header.php';
             </p>
         </div>
 
+        <!-- Flash Messages -->
+        <?php if (!empty($successMessage)): ?>
+            <div class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3">
+                <i class="fas fa-check-circle text-green-600 dark:text-green-400"></i>
+                <p class="text-green-800 dark:text-green-300 text-sm"><?php echo htmlspecialchars($successMessage); ?></p>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($errorMessage)): ?>
+            <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3">
+                <i class="fas fa-exclamation-circle text-red-600 dark:text-red-400"></i>
+                <p class="text-red-800 dark:text-red-300 text-sm"><?php echo htmlspecialchars($errorMessage); ?></p>
+            </div>
+        <?php endif; ?>
+
         <!-- Form -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8">
-            <form action="#" method="POST" class="space-y-4" onsubmit="return false;">
+            <form action="/pasang-iklan/process.php" method="POST" class="space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="nama" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama / Kontak</label>
@@ -44,8 +64,14 @@ include __DIR__ . '/../components/Header.php';
                     </div>
                 </div>
                 <div>
+                    <label for="telepon" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telepon</label>
+                    <input type="tel" id="telepon" name="telepon" required
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="081234567890">
+                </div>
+                <div>
                     <label for="jenis" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jenis Iklan</label>
-                    <select id="jenis" name="jenis"
+                    <select id="jenis" name="jenis" required
                         class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         <option value="">— Pilih —</option>
                         <option value="banner">Banner</option>
@@ -71,5 +97,12 @@ include __DIR__ . '/../components/Header.php';
         </p>
     </div>
 </main>
+
+<?php
+// Get flash messages
+$successMessage = $_SESSION['success'] ?? '';
+$errorMessage = $_SESSION['error'] ?? '';
+unset($_SESSION['success'], $_SESSION['error']);
+?>
 
 <?php include __DIR__ . '/../components/Footer.php'; ?>

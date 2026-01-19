@@ -81,6 +81,25 @@ $isDashboardActive = preg_match('#^/dashboard/?$|^/dashboard/index\.php$#', $req
             <span class="font-medium">Activity Logs</span>
         </a>
 
+        <!-- Subscriber & Advertisement Section -->
+        <div class="pt-4 pb-2">
+            <p class="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Subscriber & Advertisement</p>
+        </div>
+
+        <!-- Berlangganan Menu Item -->
+        <a href="<?php echo $baseUrl; ?>/berlangganan"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group <?php echo (strpos($_SERVER['PHP_SELF'], '/berlangganan') !== false) ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30' : 'text-slate-700 hover:bg-slate-100 hover:text-sky-600'; ?>">
+            <i class="fas fa-envelope-open-text w-5 <?php echo (strpos($_SERVER['PHP_SELF'], '/berlangganan') !== false) ? '' : 'group-hover:scale-110 transition-transform'; ?>"></i>
+            <span class="font-medium">Berlangganan</span>
+        </a>
+
+        <!-- Iklan Menu Item -->
+        <a href="<?php echo $baseUrl; ?>/iklan"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group <?php echo (strpos($_SERVER['PHP_SELF'], '/iklan') !== false) ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30' : 'text-slate-700 hover:bg-slate-100 hover:text-sky-600'; ?>">
+            <i class="fas fa-bullhorn w-5 <?php echo (strpos($_SERVER['PHP_SELF'], '/iklan') !== false) ? '' : 'group-hover:scale-110 transition-transform'; ?>"></i>
+            <span class="font-medium">Iklan</span>
+        </a>
+
         <!-- Kembali ke Home -->
         <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group text-slate-700 hover:bg-slate-100 hover:text-red-600">
             <i class="fas fa-globe w-5 group-hover:scale-110 transition-transform"></i>
