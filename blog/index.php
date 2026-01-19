@@ -56,19 +56,19 @@ include __DIR__ . '/../components/Header.php';
 <main class="container mx-auto px-4 py-6">
     <!-- Breadcrumb -->
     <div class="mb-6">
-        <div class="flex items-center gap-2 text-sm">
-            <a href="/" class="text-gray-500 hover:text-red-600 transition-colors">
-                <i class="fas fa-home"></i> Beranda
+        <div class="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+            <a href="/" class="text-gray-500 hover:text-red-600 transition-colors flex items-center gap-1">
+                <i class="fas fa-home"></i> <span class="hidden sm:inline">Beranda</span>
             </a>
             <?php if (!empty($post['category_name'])): ?>
                 <span class="text-gray-400">/</span>
                 <a href="/category/?slug=<?php echo htmlspecialchars($post['category_slug']); ?>"
-                    class="text-gray-500 hover:text-red-600 transition-colors">
+                    class="text-gray-500 hover:text-red-600 transition-colors truncate max-w-[150px] sm:max-w-none">
                     <?php echo htmlspecialchars($post['category_name']); ?>
                 </a>
             <?php endif; ?>
             <span class="text-gray-400">/</span>
-            <span class="text-gray-700"><?php echo htmlspecialchars($post['title']); ?></span>
+            <span class="text-gray-700 truncate flex-1 min-w-0"><?php echo htmlspecialchars($post['title']); ?></span>
         </div>
     </div>
 
@@ -79,36 +79,36 @@ include __DIR__ . '/../components/Header.php';
             <article class="bg-white rounded-lg shadow-sm overflow-hidden">
                 <!-- Category Badge -->
                 <?php if (!empty($post['category_name'])): ?>
-                    <div class="px-6 pt-6">
+                    <div class="px-4 sm:px-6 pt-4 sm:pt-6">
                         <a href="/category/?slug=<?php echo htmlspecialchars($post['category_slug']); ?>"
-                            class="inline-block px-3 py-1 bg-red-600 text-white text-sm font-semibold rounded hover:bg-red-700 transition-colors">
+                            class="inline-block px-2.5 py-1 sm:px-3 sm:py-1 bg-red-600 text-white text-xs sm:text-sm font-semibold rounded hover:bg-red-700 transition-colors">
                             <?php echo htmlspecialchars($post['category_name']); ?>
                         </a>
                     </div>
                 <?php endif; ?>
 
                 <!-- Title -->
-                <header class="px-6 pt-4 pb-6">
-                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+                <header class="px-4 sm:px-6 pt-4 pb-6">
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
                         <?php echo htmlspecialchars($post['title']); ?>
                     </h1>
 
                     <!-- Meta Info -->
-                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 border-b border-gray-200 pb-4">
-                        <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 border-b border-gray-200 pb-4">
+                        <div class="flex items-center gap-1.5 sm:gap-2">
                             <i class="fas fa-user-circle text-gray-400"></i>
                             <span class="font-medium"><?php echo htmlspecialchars($post['fullname'] ?? 'Admin'); ?></span>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5 sm:gap-2">
                             <i class="fas fa-calendar text-gray-400"></i>
                             <span>
                                 <?php
                                 $date = new DateTime($post['created_at']);
-                                echo $date->format('d F Y, H:i');
+                                echo $date->format('d M Y');
                                 ?>
                             </span>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5 sm:gap-2">
                             <i class="fas fa-eye text-gray-400"></i>
                             <span><?php echo number_format($post['views'] + 1); ?> views</span>
                         </div>
@@ -116,7 +116,7 @@ include __DIR__ . '/../components/Header.php';
 
                     <!-- Description -->
                     <?php if (!empty($post['description'])): ?>
-                        <div class="mt-4 text-lg text-gray-700 leading-relaxed font-medium">
+                        <div class="mt-4 text-base sm:text-lg text-gray-700 leading-relaxed font-medium">
                             <?php echo htmlspecialchars($post['description']); ?>
                         </div>
                     <?php endif; ?>
@@ -124,7 +124,7 @@ include __DIR__ . '/../components/Header.php';
 
                 <!-- Featured Image -->
                 <?php if (!empty($post['image'])): ?>
-                    <div class="px-6 pb-6">
+                    <div class="px-4 sm:px-6 pb-6">
                         <img src="<?php echo htmlspecialchars($post['image']); ?>"
                             alt="<?php echo htmlspecialchars($post['title']); ?>"
                             class="w-full rounded-lg object-cover">
@@ -132,31 +132,17 @@ include __DIR__ . '/../components/Header.php';
                 <?php endif; ?>
 
                 <!-- Content -->
-                <div class="px-6 pb-6">
-                    <div class="prose prose-lg max-w-none post-content">
+                <div class="px-4 sm:px-6 pb-6">
+                    <div class="prose prose-base sm:prose-lg max-w-none post-content">
                         <?php echo $post['content']; ?>
                     </div>
                 </div>
 
-                <!-- Tags -->
-                <?php if (!empty($post['tags']) && is_array($post['tags'])): ?>
-                    <div class="px-6 pb-6">
-                        <div class="flex flex-wrap gap-2">
-                            <?php foreach ($post['tags'] as $tag): ?>
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
-                                    <i class="fas fa-tag mr-1 text-xs"></i>
-                                    <?php echo htmlspecialchars($tag['name']); ?>
-                                </span>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
                 <!-- Share Buttons -->
                 <div class="px-6 pb-6 border-t border-gray-200 pt-6">
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-700 font-semibold">Bagikan artikel ini:</span>
-                        <div class="flex gap-2">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <span class="text-gray-700 font-semibold text-sm sm:text-base">Bagikan artikel ini:</span>
+                        <div class="flex gap-2 flex-wrap">
                             <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']); ?>"
                                 target="_blank"
                                 class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
@@ -185,38 +171,38 @@ include __DIR__ . '/../components/Header.php';
                         <h2 class="text-xl font-bold text-gray-900">Berita Terkait</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <?php foreach ($relatedPosts as $related): ?>
                             <article class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
                                 <a href="/blog/?slug=<?php echo htmlspecialchars($related['slug']); ?>" class="block">
-                                    <div class="flex gap-4 p-4">
-                                        <div class="relative w-32 h-32 flex-shrink-0 overflow-hidden rounded">
+                                    <div class="flex gap-3 sm:gap-4 p-3 sm:p-4">
+                                        <div class="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 overflow-hidden rounded">
                                             <?php if (!empty($related['image'])): ?>
                                                 <img src="<?php echo htmlspecialchars($related['image']); ?>"
                                                     alt="<?php echo htmlspecialchars($related['title']); ?>"
                                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
                                             <?php else: ?>
                                                 <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                                    <i class="fas fa-image text-gray-400 text-2xl"></i>
+                                                    <i class="fas fa-image text-gray-400 text-xl sm:text-2xl"></i>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <h3 class="text-base font-bold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors mb-2">
+                                            <h3 class="text-sm sm:text-base font-bold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors mb-1 sm:mb-2">
                                                 <?php echo htmlspecialchars($related['title']); ?>
                                             </h3>
-                                            <p class="text-sm text-gray-600 line-clamp-2 mb-2">
+                                            <p class="text-xs sm:text-sm text-gray-600 line-clamp-2 mb-1 sm:mb-2 hidden sm:block">
                                                 <?php echo htmlspecialchars($related['description'] ?? ''); ?>
                                             </p>
-                                            <div class="flex items-center gap-3 text-xs text-gray-500">
+                                            <div class="flex items-center gap-2 sm:gap-3 text-xs text-gray-500">
                                                 <span>
                                                     <?php
                                                     $date = new DateTime($related['created_at']);
                                                     echo $date->format('d M Y');
                                                     ?>
                                                 </span>
-                                                <span>•</span>
-                                                <span><?php echo number_format($related['views'] ?? 0); ?> views</span>
+                                                <span class="hidden sm:inline">•</span>
+                                                <span class="hidden sm:inline"><?php echo number_format($related['views'] ?? 0); ?> views</span>
                                             </div>
                                         </div>
                                     </div>
@@ -239,10 +225,11 @@ include __DIR__ . '/../components/Header.php';
                 <div class="flex flex-wrap gap-2">
                     <?php if (!empty($post['tags']) && is_array($post['tags'])): ?>
                         <?php foreach ($post['tags'] as $tag): ?>
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer">
+                            <a href="/tags/?slug=<?php echo htmlspecialchars($tag['slug'] ?? $tag['tags_id']); ?>"
+                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
                                 <i class="fas fa-tag mr-1 text-xs"></i>
                                 <?php echo htmlspecialchars($tag['name']); ?>
-                            </span>
+                            </a>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <p class="text-sm text-gray-500 px-3 py-2">Belum ada tags</p>

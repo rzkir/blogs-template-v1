@@ -1,3 +1,32 @@
+/* ===================== Dark Mode Variables ===================== */
+:root {
+    --bg-primary: #f9fafb;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f3f4f6;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --text-tertiary: #9ca3af;
+    --border-color: #e5e7eb;
+    --border-color-hover: #d1d5db;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --bg-tertiary: #374151;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-tertiary: #9ca3af;
+    --border-color: #374151;
+    --border-color-hover: #4b5563;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -35,6 +64,8 @@
 /* Kompas.com Style Enhancements */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 /* Line clamp utilities */
@@ -52,16 +83,9 @@ body {
     overflow: hidden;
 }
 
-/* Smooth transitions */
-* {
-    transition-property: color, background-color, border-color, transform, box-shadow;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-}
-
-/* News card hover effects */
-article:hover {
-    transform: translateY(-2px);
+/* Smooth transitions for theme changes - only when theme is already loaded */
+body.theme-loaded * {
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
 
 /* Navigation scroll */
@@ -72,6 +96,96 @@ nav {
 
 nav::-webkit-scrollbar {
     display: none;
+}
+
+/* Category Navigation Overflow Styling */
+.category-nav {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #dc2626 #f3f4f6;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    display: flex !important;
+    align-items: center;
+    gap: 0.125rem;
+}
+
+.category-nav a {
+    flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+    .category-nav {
+        gap: 0.25rem;
+    }
+}
+
+/* Mobile Menu and Search Styling */
+#mobileMenu.hidden,
+#mobileSearch.hidden {
+    display: none !important;
+}
+
+/* Scrollbar styling for webkit browsers */
+.category-nav::-webkit-scrollbar {
+    height: 8px;
+}
+
+.category-nav::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 4px;
+}
+
+.category-nav::-webkit-scrollbar-thumb {
+    background: #dc2626;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    min-width: 40px;
+}
+
+.category-nav::-webkit-scrollbar-thumb:hover {
+    background: #b91c1c;
+}
+
+.category-nav::-webkit-scrollbar-thumb:active {
+    background: #991b1b;
+}
+
+/* Dark mode scrollbar */
+[data-theme="dark"] .category-nav {
+    scrollbar-color: #ef4444 #374151;
+}
+
+[data-theme="dark"] .category-nav::-webkit-scrollbar-track {
+    background: #374151;
+}
+
+[data-theme="dark"] .category-nav::-webkit-scrollbar-thumb {
+    background: #ef4444;
+}
+
+[data-theme="dark"] .category-nav::-webkit-scrollbar-thumb:hover {
+    background: #dc2626;
+}
+
+[data-theme="dark"] .category-nav::-webkit-scrollbar-thumb:active {
+    background: #b91c1c;
+}
+
+/* Ensure scrollbar is always visible on desktop */
+@media (min-width: 768px) {
+    .category-nav::-webkit-scrollbar {
+        height: 8px;
+    }
+}
+
+/* Mobile scrollbar - slightly smaller */
+@media (max-width: 767px) {
+    .category-nav::-webkit-scrollbar {
+        height: 6px;
+    }
 }
 
 #profile-dropdown-menu {
@@ -190,14 +304,61 @@ nav::-webkit-scrollbar {
     margin: 0.5em 0 !important;
 }
 
+/* Aspect Ratio for Card Images */
+.aspect-ratio-16-9 {
+    aspect-ratio: 16 / 9;
+    min-height: 180px;
+}
+
+.aspect-ratio-1-1 {
+    aspect-ratio: 1 / 1;
+}
+
+.aspect-ratio-4-3 {
+    aspect-ratio: 4 / 3;
+}
+
+/* Mobile aspect ratio adjustments */
+@media (max-width: 640px) {
+    .aspect-ratio-16-9 {
+        min-height: 200px;
+    }
+}
+
 /* Post Content Styling (Prose) */
 .post-content {
     line-height: 1.8;
-    color: #374151;
+    color: var(--text-secondary);
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 .post-content p {
     margin-bottom: 1.25rem;
+}
+
+/* Responsive post content */
+@media (max-width: 640px) {
+    .post-content {
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .post-content h1 {
+        font-size: 1.75rem !important;
+    }
+
+    .post-content h2 {
+        font-size: 1.5rem !important;
+    }
+
+    .post-content h3 {
+        font-size: 1.25rem !important;
+    }
+
+    .post-content h4 {
+        font-size: 1.1rem !important;
+    }
 }
 
 .post-content h1,
@@ -207,7 +368,7 @@ nav::-webkit-scrollbar {
 .post-content h5,
 .post-content h6 {
     font-weight: 700;
-    color: #111827;
+    color: var(--text-primary);
     margin-top: 2rem;
     margin-bottom: 1rem;
     line-height: 1.3;
@@ -232,10 +393,6 @@ nav::-webkit-scrollbar {
 .post-content a {
     color: #dc2626;
     text-decoration: underline;
-}
-
-.post-content a:hover {
-    color: #b91c1c;
 }
 
 .post-content ul,
@@ -314,6 +471,596 @@ nav::-webkit-scrollbar {
 
 .post-content hr {
     border: none;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border-color);
     margin: 2rem 0;
+}
+
+/* ===================== Additional Dark Mode Styles ===================== */
+
+/* Card backgrounds */
+[data-theme="dark"] .bg-white {
+    background-color: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] .bg-gray-50 {
+    background-color: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] .bg-gray-100 {
+    background-color: var(--bg-tertiary) !important;
+}
+
+/* Text colors */
+[data-theme="dark"] .text-gray-900 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .text-gray-700 {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .text-gray-600 {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .text-gray-500 {
+    color: var(--text-tertiary) !important;
+}
+
+/* Borders */
+[data-theme="dark"] .border-gray-200 {
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .border-gray-300 {
+    border-color: var(--border-color) !important;
+}
+
+/* Shadows */
+[data-theme="dark"] .shadow-md {
+    box-shadow: var(--shadow-md) !important;
+}
+
+[data-theme="dark"] .shadow-lg {
+    box-shadow: var(--shadow-lg) !important;
+}
+
+/* Input fields */
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="search"],
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] input[type="text"]:focus,
+[data-theme="dark"] input[type="search"]:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus {
+    background-color: var(--bg-secondary);
+    border-color: #dc2626;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: var(--text-tertiary);
+}
+
+/* Quill Editor Dark Mode */
+[data-theme="dark"] .ql-toolbar {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .ql-container {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .ql-editor {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .ql-stroke {
+    stroke: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ql-fill {
+    fill: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ql-picker-label {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .post-content code {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .post-content blockquote {
+    color: var(--text-tertiary);
+}
+
+[data-theme="dark"] .post-content th,
+[data-theme="dark"] .post-content td {
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .post-content th {
+    background-color: var(--bg-tertiary);
+}
+
+/* Hover states */
+[data-theme="dark"] .hover\:bg-gray-50:hover {
+    background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .hover\:bg-gray-100:hover {
+    background-color: var(--bg-tertiary) !important;
+}
+
+/* Theme dropdown animations and visibility */
+#themeDropdown {
+    display: none;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#themeDropdown:not(.hidden) {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+/* More specific dark mode overrides */
+[data-theme="dark"] .text-gray-400 {
+    color: #9ca3af !important;
+}
+
+[data-theme="dark"] .text-gray-800 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .bg-gray-200 {
+    background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .bg-gray-300 {
+    background-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .border-gray-100 {
+    border-color: var(--border-color) !important;
+}
+
+/* Fix for gradient backgrounds in dark mode */
+[data-theme="dark"] .bg-gradient-to-br {
+    opacity: 0.8;
+}
+
+/* Card hover effects in dark mode */
+[data-theme="dark"] article:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Dropdown and modal backgrounds */
+[data-theme="dark"] .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Tag and category badges */
+[data-theme="dark"] .bg-red-50 {
+    background-color: rgba(220, 38, 38, 0.1) !important;
+}
+
+[data-theme="dark"] .hover\:bg-red-50:hover {
+    background-color: rgba(220, 38, 38, 0.2) !important;
+}
+
+/* Sidebar specific */
+[data-theme="dark"] aside .bg-white {
+    background-color: var(--bg-secondary) !important;
+}
+
+/* Make sure links maintain proper colors */
+[data-theme="dark"] a.hover\:text-red-600:hover {
+    color: #dc2626 !important;
+}
+
+[data-theme="dark"] a.hover\:text-blue-600:hover {
+    color: #2563eb !important;
+}
+
+[data-theme="dark"] a.hover\:text-yellow-600:hover {
+    color: #ca8a04 !important;
+}
+
+/* Footer adjustments for dark mode */
+[data-theme="dark"] footer.bg-gray-900 {
+    background-color: #0a0a0a !important;
+    border-top: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] footer .bg-gray-800 {
+    background-color: #1a1a1a !important;
+}
+
+[data-theme="dark"] footer .border-gray-800 {
+    border-color: #2a2a2a !important;
+}
+
+/* Sticky Header Enhancements for Responsive */
+header#mainHeader {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Enhanced shadow when scrolling on mobile */
+@media (max-width: 768px) {
+    header#mainHeader.scrolled {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    [data-theme="dark"] header#mainHeader.scrolled {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* Header adjustments for dark mode */
+[data-theme="dark"] header.bg-white,
+html.dark header {
+    background-color: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Ensure header has correct background immediately on page load */
+html:not(.dark) header {
+    background-color: #ffffff !important;
+}
+
+html.dark header {
+    background-color: #111827 !important;
+    border-bottom: 1px solid #374151 !important;
+}
+
+/* Ensure header text color is correct immediately */
+html:not(.dark) header h1,
+html:not(.dark) header .text-gray-900 {
+    color: #111827 !important;
+}
+
+html.dark header h1,
+html.dark header .text-gray-900 {
+    color: #f9fafb !important;
+}
+
+html.dark header .text-gray-600,
+html.dark header .text-gray-700 {
+    color: #d1d5db !important;
+}
+
+/* Header border colors for immediate application */
+html:not(.dark) header .border-gray-200,
+html:not(.dark) header .border-b {
+    border-color: #e5e7eb !important;
+}
+
+html.dark header .border-gray-200,
+html.dark header .border-b,
+html.dark header nav.border-b {
+    border-color: #374151 !important;
+}
+
+/* Mobile search border in dark mode */
+html.dark #mobileSearch {
+    border-bottom-color: #374151 !important;
+}
+
+/* Input fields and buttons in header - prevent flash */
+html.dark header input[type="text"],
+html.dark header input[type="search"] {
+    background-color: #374151 !important;
+    border-color: #374151 !important;
+    color: #f9fafb !important;
+}
+
+html.dark header button {
+    color: #d1d5db;
+}
+
+html.dark header button:hover {
+    background-color: #374151;
+}
+
+/* Category navigation links in dark mode */
+html.dark header nav a.text-gray-700,
+html.dark header nav a.text-gray-900 {
+    color: #d1d5db !important;
+}
+
+html.dark header nav a.text-gray-700:hover,
+html.dark header nav a.text-gray-900:hover {
+    background-color: rgba(55, 65, 81, 0.3);
+}
+
+/* Ensure header and containers don't hide dropdowns */
+header,
+header>div,
+header .flex {
+    overflow: visible !important;
+}
+
+/* Prevent header flash on page load */
+header,
+header *,
+header .border-b,
+header nav {
+    transition: none !important;
+}
+
+body.theme-loaded header,
+body.theme-loaded header *,
+body.theme-loaded header .border-b,
+body.theme-loaded header nav {
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
+}
+
+/* Theme switcher container must allow overflow */
+#themeSwitcher {
+    position: relative;
+    z-index: 1000;
+}
+
+/* Ensure theme dropdown is always on top */
+#themeDropdown {
+    position: absolute !important;
+    z-index: 99999 !important;
+    top: 100%;
+    right: 0;
+    margin-top: 0.5rem;
+}
+
+/* Placeholder colors */
+[data-theme="dark"] ::placeholder {
+    color: var(--text-tertiary);
+    opacity: 1;
+}
+
+
+/* Mobile Bottom Navigation Spacing */
+@media (max-width: 767px) {
+    body {
+        padding-bottom: 5rem;
+        /* Space for bottom navigation */
+    }
+
+    /* Sidebar margin on mobile */
+    aside {
+        margin-bottom: 2rem;
+    }
+
+    /* Better spacing for main content */
+    main.container {
+        padding-bottom: 2rem;
+    }
+
+    /* Improve card padding on mobile */
+    article .p-4 {
+        padding: 0.75rem !important;
+    }
+
+    /* Better breadcrumb wrapping */
+    .flex.items-center.gap-2 {
+        flex-wrap: wrap;
+    }
+}
+
+/* Top Bar - Red background should remain consistent in both themes */
+.bg-red-600 {
+    background-color: #dc2626 !important;
+}
+
+/* Mobile Bottom Navigation Dark Mode */
+[data-theme="dark"] nav.fixed.bottom-0,
+html.dark nav.fixed.bottom-0 {
+    background-color: var(--bg-secondary) !important;
+    border-top-color: var(--border-color) !important;
+}
+
+html:not(.dark) nav.fixed.bottom-0 {
+    background-color: #ffffff !important;
+    border-top-color: #e5e7eb !important;
+}
+
+[data-theme="dark"] nav.fixed.bottom-0 a {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] nav.fixed.bottom-0 a.text-red-600 {
+    color: #ef4444 !important;
+}
+
+[data-theme="dark"] nav.fixed.bottom-0 a:hover {
+    color: #ef4444 !important;
+}
+
+/* ===================== Additional Responsive Improvements ===================== */
+
+/* Better responsive padding for containers */
+@media (max-width: 640px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Adjust heading sizes for mobile */
+    h1 {
+        font-size: 1.5rem !important;
+        line-height: 1.3 !important;
+    }
+
+    h2 {
+        font-size: 1.25rem !important;
+        line-height: 1.3 !important;
+    }
+
+    h3 {
+        font-size: 1.125rem !important;
+        line-height: 1.3 !important;
+    }
+
+    /* Better card spacing on mobile */
+    .space-y-6 {
+        gap: 1rem;
+    }
+
+    /* Improve button sizes on mobile */
+    .w-10.h-10 {
+        min-width: 2.5rem;
+        min-height: 2.5rem;
+    }
+}
+
+/* Tablet responsive adjustments */
+@media (min-width: 641px) and (max-width: 1023px) {
+    .container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+/* Ensure images don't overflow on small screens */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Better text wrapping */
+.line-clamp-1,
+.line-clamp-2,
+.line-clamp-3 {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Improve touch targets for mobile */
+@media (hover: none) and (pointer: coarse) {
+
+    a,
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Safe area for devices with notches */
+.safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better focus states for accessibility */
+a:focus,
+button:focus {
+    outline: 2px solid #dc2626;
+    outline-offset: 2px;
+}
+
+/* Improve form input sizes on mobile */
+@media (max-width: 640px) {
+
+    input[type="text"],
+    input[type="search"],
+    textarea,
+    select {
+        font-size: 16px !important;
+        /* Prevents zoom on iOS */
+    }
+
+    /* Better truncate behavior */
+    .truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Improve flex wrapping on mobile */
+    .flex-wrap {
+        gap: 0.5rem !important;
+    }
+
+    /* Better grid gaps on small screens */
+    .gap-4 {
+        gap: 0.75rem;
+    }
+
+    .gap-6 {
+        gap: 1rem;
+    }
+
+    /* Better max-width handling for text */
+    .max-w-md,
+    .max-w-lg,
+    .max-w-xl,
+    .max-w-2xl {
+        max-width: 100% !important;
+    }
+}
+
+/* Improve sidebar visibility on tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+    aside.w-full.lg\:w-80 {
+        width: 100%;
+        margin-top: 2rem;
+    }
+}
+
+/* Improve category badge wrapping */
+.flex.flex-wrap.gap-2 {
+    align-items: center;
+}
+
+/* ===================== Breaking News Ticker ===================== */
+.breaking-news-ticker {
+    display: inline-flex;
+    white-space: nowrap;
+    animation: scroll-left 40s linear infinite;
+    will-change: transform;
+}
+
+.breaking-news-ticker:hover {
+    animation-play-state: paused;
+}
+
+.ticker-item {
+    display: inline-block;
+    white-space: nowrap;
+    padding-right: 3rem;
+    transition: color 0.2s ease;
+}
+
+.ticker-item:hover {
+    color: #fde047 !important;
+}
+
+@keyframes scroll-left {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
 }

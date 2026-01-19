@@ -1,5 +1,19 @@
+    <?php
+    // Get categories if not already set
+    if (!isset($footerCategories)) {
+        if (!isset($db)) {
+            require_once __DIR__ . '/../config/db.php';
+        }
+        if (!class_exists('CategoriesController')) {
+            require_once __DIR__ . '/../controllers/CategoriesController.php';
+        }
+        $categoriesController = new CategoriesController($db);
+        $footerCategories = $categoriesController->getAll();
+    }
+    ?>
+
     <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-300 mt-16">
+    <footer class="bg-white dark:bg-gray-900">
         <div class="container mx-auto px-4 py-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                 <!-- About -->
@@ -17,11 +31,18 @@
                 <div>
                     <h4 class="text-white font-bold mb-4">Kategori</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="/" class="hover:text-white transition-colors">Nasional</a></li>
-                        <li><a href="/" class="hover:text-white transition-colors">Global</a></li>
-                        <li><a href="/" class="hover:text-white transition-colors">Tekno</a></li>
-                        <li><a href="/" class="hover:text-white transition-colors">Lifestyle</a></li>
-                        <li><a href="/" class="hover:text-white transition-colors">Olahraga</a></li>
+                        <?php if (!empty($footerCategories)): ?>
+                            <?php foreach ($footerCategories as $category): ?>
+                                <li>
+                                    <a href="/blog/?category=<?php echo htmlspecialchars($category['categories_id']); ?>"
+                                        class="hover:text-white transition-colors">
+                                        <?php echo htmlspecialchars($category['name']); ?>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <li class="text-gray-500 text-sm">Belum ada kategori</li>
+                        <?php endif; ?>
                     </ul>
                 </div>
 
@@ -71,6 +92,9 @@
             </div>
         </div>
     </footer>
+
+    <!-- Load main.js for theme switcher and other functionality -->
+    <script src="/js/main.js"></script>
 
     <script>
         // Mobile menu toggle

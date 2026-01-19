@@ -259,8 +259,8 @@ include __DIR__ . '/../components/Header.php';
                 <div class="space-y-2 max-h-64 overflow-y-auto">
                     <?php if (!empty($tags)): ?>
                         <?php foreach ($tags as $t): ?>
-                            <a href="/tags?slug=<?php echo htmlspecialchars($t['tags_id']); ?>"
-                                class="block px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded transition-colors <?php echo $t['tags_id'] === $tagSlug ? 'bg-red-50 text-red-600 font-semibold' : ''; ?>">
+                            <a href="/tags/?slug=<?php echo htmlspecialchars($t['slug'] ?? $t['tags_id']); ?>"
+                                class="block px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded transition-colors <?php echo ($t['slug'] ?? $t['tags_id']) === $tagSlug ? 'bg-red-50 text-red-600 font-semibold' : ''; ?>">
                                 <?php echo htmlspecialchars($t['name']); ?>
                             </a>
                         <?php endforeach; ?>

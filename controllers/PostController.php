@@ -638,4 +638,31 @@ class PostController
         $stmt->close();
         return $posts;
     }
+
+    /**
+     * Get latest posts for breaking news ticker
+     */
+    public function getLatestPosts(int $limit = 10): array
+    {
+        $posts = [];
+        $stmt = $this->db->prepare("
+            SELECT 
+                p.id,
+                p.title,
+                p.slug,
+                p.created_at
+            FROM `posts` p
+            WHERE p.status = 'published'
+            ORDER BY p.created_at DESC
+            LIMIT ?
+        ");
+        $stmt->bind_param('i', $limit);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $posts[] = $row;
+        }
+        $stmt->close();
+        return $posts;
+    }
 }

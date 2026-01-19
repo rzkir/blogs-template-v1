@@ -1,3 +1,215 @@
+//======================= Mobile Menu & Search Toggle =======================//
+
+// Mobile Search Toggle
+(function () {
+    function initMobileSearch() {
+        const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+        const mobileSearch = document.getElementById('mobileSearch');
+
+        if (!mobileSearchBtn || !mobileSearch) return;
+
+        let isOpen = false;
+
+        mobileSearchBtn.onclick = function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (isOpen) {
+                mobileSearch.classList.add('hidden');
+                isOpen = false;
+            } else {
+                mobileSearch.classList.remove('hidden');
+                isOpen = true;
+                // Focus on input
+                setTimeout(function () {
+                    const searchInput = mobileSearch.querySelector('input[name="q"]');
+                    if (searchInput) searchInput.focus();
+                }, 100);
+            }
+        };
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMobileSearch);
+    } else {
+        initMobileSearch();
+    }
+})();
+
+//======================= Dark Mode / Theme Switcher =======================//
+
+// Theme management
+(function () {
+    const THEME_KEY = 'blog-theme';
+    const THEMES = {
+        LIGHT: 'light',
+        DARK: 'dark',
+        SYSTEM: 'system'
+    };
+
+    function getSystemTheme() {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? THEMES.DARK : THEMES.LIGHT;
+    }
+
+    function getSavedTheme() {
+        return localStorage.getItem(THEME_KEY) || THEMES.SYSTEM;
+    }
+
+    function saveTheme(theme) {
+        localStorage.setItem(THEME_KEY, theme);
+    }
+
+    function applyTheme(theme) {
+        const actualTheme = theme === THEMES.SYSTEM ? getSystemTheme() : theme;
+
+        if (actualTheme === THEMES.DARK) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.removeAttribute('data-theme');
+        }
+
+        // Add theme-loaded class to enable transitions after theme is set
+        document.body.classList.add('theme-loaded');
+
+        updateThemeIcon(theme);
+        updateThemeCheckmarks(theme);
+    }
+
+    function updateThemeIcon(theme) {
+        const themeIcon = document.getElementById('themeIcon');
+        if (!themeIcon) return;
+
+        themeIcon.classList.remove('fa-sun', 'fa-moon', 'fa-desktop');
+
+        switch (theme) {
+            case THEMES.LIGHT:
+                themeIcon.classList.add('fa-sun');
+                break;
+            case THEMES.DARK:
+                themeIcon.classList.add('fa-moon');
+                break;
+            case THEMES.SYSTEM:
+                themeIcon.classList.add('fa-desktop');
+                break;
+        }
+    }
+
+    function updateThemeCheckmarks(currentTheme) {
+        const themeOptions = document.querySelectorAll('.theme-option');
+        themeOptions.forEach(option => {
+            const optionTheme = option.getAttribute('data-theme');
+            const checkmark = option.querySelector('.theme-check');
+            if (checkmark) {
+                if (optionTheme === currentTheme) {
+                    checkmark.classList.remove('hidden');
+                } else {
+                    checkmark.classList.add('hidden');
+                }
+            }
+        });
+    }
+
+    // Setup theme switcher after DOM is ready
+    function initThemeSwitcher() {
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeDropdown = document.getElementById('themeDropdown');
+        const themeSwitcher = document.getElementById('themeSwitcher');
+        const themeOptions = document.querySelectorAll('.theme-option');
+        const savedTheme = getSavedTheme();
+
+        if (!themeToggleBtn || !themeDropdown || !themeSwitcher) {
+            return;
+        }
+
+        // Update UI on load
+        updateThemeIcon(savedTheme);
+        updateThemeCheckmarks(savedTheme);
+
+        let isOpen = false;
+        let justClicked = false;
+
+        // Function to close dropdown
+        function closeDropdown() {
+            themeDropdown.classList.add('hidden');
+            themeDropdown.style.display = 'none';
+            isOpen = false;
+        }
+
+        // Function to open dropdown
+        function openDropdown() {
+            themeDropdown.classList.remove('hidden');
+            themeDropdown.style.display = 'block';
+            themeDropdown.style.visibility = 'visible';
+            themeDropdown.style.opacity = '1';
+            isOpen = true;
+        }
+
+        // Toggle dropdown on button click
+        themeToggleBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            justClicked = true;
+
+            if (isOpen) {
+                closeDropdown();
+            } else {
+                openDropdown();
+            }
+
+            // Reset flag after this event cycle completes
+            setTimeout(function () {
+                justClicked = false;
+            }, 50);
+        });
+
+        // Global click handler to close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            // Skip if we just clicked the button (event is still processing)
+            if (justClicked) return;
+
+            // Skip if dropdown is not open
+            if (!isOpen) return;
+
+            // Check if click is inside theme switcher
+            if (!themeSwitcher.contains(e.target)) {
+                closeDropdown();
+            }
+        });
+
+        // Handle theme selection
+        themeOptions.forEach(option => {
+            option.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const selectedTheme = this.getAttribute('data-theme');
+                saveTheme(selectedTheme);
+                applyTheme(selectedTheme);
+                closeDropdown();
+            });
+        });
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initThemeSwitcher);
+    } else {
+        // DOM already loaded
+        initThemeSwitcher();
+    }
+
+    // Listen for system theme changes when using system theme
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+        const currentTheme = getSavedTheme();
+        if (currentTheme === THEMES.SYSTEM) {
+            applyTheme(THEMES.SYSTEM);
+        }
+    });
+})();
+
 //======================= Utility Functions =======================//
 
 /**
@@ -123,6 +335,7 @@ function removeImageTags(html) {
 
 //======================= Tailwind Config =======================//
 tailwind.config = {
+    darkMode: ['class', '[data-theme="dark"]'],
     theme: {
         extend: {
             colors: {
@@ -727,3 +940,108 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+//======================= Sticky Header Scroll Detection (Responsive) =======================//
+(function () {
+    function initStickyHeader() {
+        const header = document.getElementById('mainHeader');
+        if (!header) return;
+
+        let lastScrollTop = 0;
+        let isScrolled = false;
+
+        // Only apply enhanced sticky behavior on mobile/tablet (max-width: 768px)
+        function handleScroll() {
+            // Check if we're on mobile/tablet
+            if (window.innerWidth > 768) return;
+
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            // Add scrolled class for shadow effect when scrolled down
+            if (scrollTop > 10 && !isScrolled) {
+                header.classList.add('scrolled');
+                isScrolled = true;
+            } else if (scrollTop <= 10 && isScrolled) {
+                header.classList.remove('scrolled');
+                isScrolled = false;
+            }
+
+            lastScrollTop = scrollTop;
+        }
+
+        // Throttle scroll event for better performance
+        let ticking = false;
+        window.addEventListener('scroll', function () {
+            if (!ticking) {
+                window.requestAnimationFrame(function () {
+                    handleScroll();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 768) {
+                header.classList.remove('scrolled');
+                isScrolled = false;
+            }
+        });
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initStickyHeader);
+    } else {
+        initStickyHeader();
+    }
+})();
+
+// ======================== Breaking News Ticker ========================
+(function () {
+    function initBreakingNewsTicker() {
+        const ticker = document.getElementById('breakingNewsTicker');
+        if (!ticker) return;
+
+        // Clone the content for seamless infinite scroll
+        const originalContent = ticker.innerHTML;
+        ticker.innerHTML = originalContent + originalContent;
+
+        // Calculate animation duration based on content width for smooth scrolling
+        const updateAnimationDuration = () => {
+            const tickerWidth = ticker.scrollWidth / 2;
+            // Speed: 60 pixels per second for smooth movement
+            const duration = Math.max(tickerWidth / 60, 20);
+            ticker.style.animationDuration = `${duration}s`;
+        };
+
+        // Wait for content to render before calculating
+        setTimeout(() => {
+            updateAnimationDuration();
+        }, 100);
+
+        // Update on window resize with debounce
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(updateAnimationDuration, 250);
+        });
+
+        // Pause on hover for better UX
+        ticker.addEventListener('mouseenter', () => {
+            ticker.style.animationPlayState = 'paused';
+        });
+
+        ticker.addEventListener('mouseleave', () => {
+            ticker.style.animationPlayState = 'running';
+        });
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initBreakingNewsTicker);
+    } else {
+        initBreakingNewsTicker();
+    }
+})();

@@ -27,24 +27,24 @@ include __DIR__ . '/../components/Header.php';
 <main class="container mx-auto px-4 py-6">
     <!-- Search Header -->
     <div class="mb-6">
-        <div class="flex items-center gap-2 mb-2">
+        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 text-xs sm:text-sm flex-wrap">
             <a href="/" class="text-gray-500 hover:text-red-600 transition-colors">
-                <i class="fas fa-home"></i> Beranda
+                <i class="fas fa-home"></i> <span class="hidden sm:inline">Beranda</span>
             </a>
             <span class="text-gray-400">/</span>
             <span class="text-gray-700 font-medium">Pencarian</span>
         </div>
-        <div class="flex items-center gap-2 mb-2">
-            <i class="fas fa-search text-red-600 text-2xl"></i>
-            <h1 class="text-3xl font-bold text-gray-900">Hasil Pencarian</h1>
+        <div class="flex items-center gap-2 sm:gap-3 mb-2">
+            <i class="fas fa-search text-red-600 text-xl sm:text-2xl"></i>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Hasil Pencarian</h1>
         </div>
         <?php if (!empty($keyword)): ?>
-            <p class="text-gray-600">
+            <p class="text-sm sm:text-base text-gray-600">
                 Menampilkan <span class="font-semibold"><?php echo count($posts); ?> artikel</span> untuk:
-                <span class="font-semibold text-red-600">"<?php echo htmlspecialchars($keyword); ?>"</span>
+                <span class="font-semibold text-red-600 break-words">"<?php echo htmlspecialchars($keyword); ?>"</span>
             </p>
         <?php else: ?>
-            <p class="text-gray-600">Masukkan kata kunci untuk mencari artikel</p>
+            <p class="text-sm sm:text-base text-gray-600">Masukkan kata kunci untuk mencari artikel</p>
         <?php endif; ?>
     </div>
 
@@ -92,7 +92,7 @@ include __DIR__ . '/../components/Header.php';
 
                 <!-- Headline Section -->
                 <div class="bg-white rounded-lg shadow-sm mb-6 overflow-hidden">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-4">
                         <!-- Main Headline -->
                         <div class="lg:col-span-2">
                             <a href="/blog/?slug=<?php echo htmlspecialchars($headlinePost['slug']); ?>" class="block group">
@@ -136,23 +136,23 @@ include __DIR__ . '/../components/Header.php';
 
                         <!-- Side Headlines -->
                         <?php if (!empty($otherPosts)): ?>
-                            <div class="space-y-4">
+                            <div class="space-y-3 p-4 lg:p-0 lg:space-y-4">
                                 <?php foreach ($otherPosts as $index => $post): ?>
                                     <a href="/blog/?slug=<?php echo htmlspecialchars($post['slug']); ?>" class="block group">
-                                        <div class="flex gap-3">
-                                            <div class="relative w-24 h-24 flex-shrink-0 overflow-hidden rounded">
+                                        <div class="flex gap-2 sm:gap-3">
+                                            <div class="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 overflow-hidden rounded">
                                                 <?php if (!empty($post['image'])): ?>
                                                     <img src="<?php echo htmlspecialchars($post['image']); ?>"
                                                         alt="<?php echo htmlspecialchars($post['title']); ?>"
                                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
                                                 <?php else: ?>
                                                     <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                                        <i class="fas fa-image text-gray-400"></i>
+                                                        <i class="fas fa-image text-gray-400 text-sm"></i>
                                                     </div>
                                                 <?php endif; ?>
                                             </div>
                                             <div class="flex-1 min-w-0">
-                                                <h3 class="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors mb-1">
+                                                <h3 class="text-xs sm:text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors mb-1">
                                                     <?php echo htmlspecialchars($post['title']); ?>
                                                 </h3>
                                                 <p class="text-xs text-gray-500">
@@ -183,10 +183,10 @@ include __DIR__ . '/../components/Header.php';
                             <h2 class="text-xl font-bold text-gray-900">Hasil Lainnya</h2>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <?php foreach ($gridPosts as $post): ?>
                                 <article class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
-                                    <a href="/post/<?php echo htmlspecialchars($post['slug']); ?>" class="block">
+                                    <a href="/blog/?slug=<?php echo htmlspecialchars($post['slug']); ?>" class="block">
                                         <div class="relative h-48 overflow-hidden">
                                             <?php if (!empty($post['image'])): ?>
                                                 <img src="<?php echo htmlspecialchars($post['image']); ?>"
@@ -266,7 +266,7 @@ include __DIR__ . '/../components/Header.php';
                 <div class="space-y-2 max-h-64 overflow-y-auto">
                     <?php if (!empty($tags)): ?>
                         <?php foreach ($tags as $tag): ?>
-                            <a href="/tags?slug=<?php echo htmlspecialchars($tag['tags_id']); ?>"
+                            <a href="/tags/?slug=<?php echo htmlspecialchars($tag['slug'] ?? $tag['tags_id']); ?>"
                                 class="block px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded transition-colors">
                                 <?php echo htmlspecialchars($tag['name']); ?>
                             </a>
