@@ -54,12 +54,107 @@ function isActiveLink($path, $categoryId = null)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) : 'Berita Terkini Hari Ini - Blog'; ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="/style/style.css" />
+
+    <?php
+    // Get current URL
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+    $currentUrl = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $siteUrl = $protocol . $_SERVER['HTTP_HOST'];
+    $siteName = 'Blog News';
+
+    // Default meta values
+    $ogTitle = isset($pageTitle) ? htmlspecialchars($pageTitle) : 'Berita Terkini Hari Ini - Blog News';
+    $ogDescription = 'Portal berita terkini dan terpercaya dengan berbagai kategori berita terbaru. Dapatkan informasi terupdate setiap hari.';
+    $ogImage = $siteUrl . '/favicon.svg';
+    $ogType = 'website';
+
+    // If this is a blog post page, use post-specific data
+    if (isset($post) && is_array($post)) {
+        $ogTitle = htmlspecialchars($post['title']) . ' - Blog News';
+        $ogDescription = !empty($post['description']) ? htmlspecialchars($post['description']) : strip_tags(substr($post['content'], 0, 200)) . '...';
+        if (!empty($post['image'])) {
+            // Make sure image URL is absolute
+            if (strpos($post['image'], 'http') === 0) {
+                $ogImage = $post['image'];
+            } else {
+                $ogImage = $siteUrl . $post['image'];
+            }
+        }
+        $ogType = 'article';
+    }
+
+    // Clean description (remove HTML tags and limit length)
+    $ogDescription = strip_tags($ogDescription);
+    if (strlen($ogDescription) > 200) {
+        $ogDescription = substr($ogDescription, 0, 197) . '...';
+    }
+    ?>
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="<?php echo $ogTitle; ?>">
+    <meta name="description" content="<?php echo $ogDescription; ?>">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="<?php echo $ogType; ?>">
+    <meta property="og:url" content="<?php echo htmlspecialchars($currentUrl); ?>">
+    <meta property="og:title" content="<?php echo $ogTitle; ?>">
+    <meta property="og:description" content="<?php echo $ogDescription; ?>">
+    <meta property="og:image" content="<?php echo htmlspecialchars($ogImage); ?>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="<?php echo $siteName; ?>">
+    <meta property="og:locale" content="id_ID">
+
+    <?php if (isset($post) && is_array($post)): ?>
+        <meta property="article:published_time" content="<?php echo date('c', strtotime($post['created_at'])); ?>">
+        <meta property="article:modified_time" content="<?php echo date('c', strtotime($post['updated_at'] ?? $post['created_at'])); ?>">
+        <?php if (!empty($post['category_name'])): ?>
+            <meta property="article:section" content="<?php echo htmlspecialchars($post['category_name']); ?>">
+        <?php endif; ?>
+        <?php if (!empty($post['tags']) && is_array($post['tags'])): ?>
+            <?php foreach ($post['tags'] as $tag): ?>
+                <meta property="article:tag" content="<?php echo htmlspecialchars($tag['name']); ?>">
+            <?php endforeach; ?>
+        <?php endif; ?>
+        <?php if (!empty($post['fullname'])): ?>
+            <meta property="article:author" content="<?php echo htmlspecialchars($post['fullname']); ?>">
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<?php echo htmlspecialchars($currentUrl); ?>">
+    <meta name="twitter:title" content="<?php echo $ogTitle; ?>">
+    <meta name="twitter:description" content="<?php echo $ogDescription; ?>">
+    <meta name="twitter:image" content="<?php echo htmlspecialchars($ogImage); ?>">
+
+    <!-- Additional Meta Tags -->
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Indonesian">
+    <meta name="author" content="<?php echo $siteName; ?>">
+    <link rel="canonical" href="<?php echo htmlspecialchars($currentUrl); ?>">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Preconnect to CDNs for faster loading -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Load CSS first -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="/style/style.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Load Tailwind CSS with error handling -->
+    <script src="https://cdn.tailwindcss.com" onerror="this.onerror=null; this.src='https://cdn.jsdelivr.net/npm/tailwindcss@3.4.0/lib/index.min.js';"></script>
 
     <!-- Theme Script - Load BEFORE body to prevent flash -->
     <script>

@@ -107,13 +107,7 @@ try {
         $authController->log($userId, 'tag_error', 'Error: ' . $errorMessage);
     }
 
-    // Redirect back to appropriate page
-    if ($action === 'create') {
-        header('Location: /dashboard/tags/create.php');
-    } elseif ($action === 'update') {
-        header('Location: /dashboard/tags/edit.php?id=' . ($_POST['id'] ?? ''));
-    } else {
-        header('Location: /dashboard/tags/index.php');
-    }
+    // Redirect back to index page
+    header('Location: /dashboard/tags/index.php');
     exit;
 }

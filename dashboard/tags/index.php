@@ -13,9 +13,20 @@ require_once __DIR__ . '/../../controllers/TagsController.php';
 $user = $_SESSION['user'];
 $controller = new TagsController($db);
 
-// Get all tags
-$tags = $controller->getAll();
-$totalTags = is_array($tags) ? count($tags) : 0;
+// Pagination
+$limit = 10; // Tags per page
+$pageFromGet = isset($_GET['page']) && is_numeric($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$pageFromGet = (int)$pageFromGet;
+
+// Total tags
+$totalTags = (int)$controller->getTotal();
+$totalPages = $totalTags > 0 ? (int)ceil($totalTags / $limit) : 1;
+$totalPages = max(1, $totalPages);
+$currentPage = min($pageFromGet, $totalPages);
+$offset = (int)(($currentPage - 1) * $limit);
+
+// Get tags (paginated)
+$tags = $controller->getAllPaginated($limit, $offset);
 
 include __DIR__ . '/../header.php';
 ?>
@@ -57,11 +68,11 @@ include __DIR__ . '/../header.php';
                             <span class="text-sm font-semibold text-slate-700"><?php echo number_format($totalTags); ?></span>
                             <span class="text-slate-500 text-sm">tag</span>
                         </div>
-                        <a href="/dashboard/tags/create.php"
+                        <button type="button" id="openCreateTagModal"
                             class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-blue-600 rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
                             <i class="fas fa-plus"></i>
                             <span>Tambah Tag</span>
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -95,11 +106,11 @@ include __DIR__ . '/../header.php';
                                             </div>
                                             <p class="text-slate-500 font-medium">Belum ada tag</p>
                                             <p class="text-slate-400 text-sm mt-1">Mulai dengan menambahkan tag pertama</p>
-                                            <a href="/dashboard/tags/create.php"
+                                            <button type="button" id="openCreateTagModalEmpty"
                                                 class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-colors">
                                                 <i class="fas fa-plus"></i>
                                                 <span>Tambah Tag</span>
-                                            </a>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -147,11 +158,13 @@ include __DIR__ . '/../header.php';
                                         </td>
                                         <td class="px-4 sm:px-6 py-4">
                                             <div class="flex items-center gap-2">
-                                                <a href="/dashboard/tags/edit.php?id=<?php echo $tag['id']; ?>"
-                                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit">
+                                                <button type="button"
+                                                    class="openEditTagModal p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    title="Edit"
+                                                    data-tag-id="<?php echo htmlspecialchars($tag['id']); ?>"
+                                                    data-tag-name="<?php echo htmlspecialchars($tag['name']); ?>">
                                                     <i class="fas fa-edit"></i>
-                                                </a>
+                                                </button>
                                                 <form action="/dashboard/tags/process.php" method="POST" class="inline"
                                                     onsubmit="return confirm('Apakah Anda yakin ingin menghapus tag ini?');">
                                                     <input type="hidden" name="action" value="delete">
@@ -170,9 +183,143 @@ include __DIR__ . '/../header.php';
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination -->
+                <?php if ($totalPages > 1): ?>
+                    <div class="px-4 sm:px-6 py-4 border-t border-slate-200/50 bg-gradient-to-r from-slate-50 to-white">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="text-sm text-slate-600">
+                                Menampilkan <span class="font-semibold"><?php echo min($offset + 1, $totalTags); ?></span> -
+                                <span class="font-semibold"><?php echo min($offset + count($tags), $totalTags); ?></span> dari
+                                <span class="font-semibold"><?php echo number_format($totalTags); ?></span> tag
+                            </div>
+
+                            <div class="flex items-center justify-center gap-1 flex-wrap">
+                                <?php
+                                $currentPageInt = (int)$currentPage;
+                                $totalPagesInt = (int)$totalPages;
+
+                                // Show all page numbers
+                                for ($i = 1; $i <= $totalPagesInt; $i++):
+                                    $pageUrl = '/dashboard/tags/index.php?page=' . $i;
+                                ?>
+                                    <?php if ($i === $currentPageInt): ?>
+                                        <span class="px-3 py-2 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-blue-600 rounded-lg shadow-md">
+                                            <?php echo $i; ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <a href="<?php echo htmlspecialchars($pageUrl); ?>"
+                                            class="px-3 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                                            <?php echo $i; ?>
+                                        </a>
+                                    <?php endif; ?>
+                                <?php endfor; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </main>
+</div>
+
+<!-- Create Tag Modal -->
+<div id="createTagModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div id="createTagBackdrop" class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
+
+    <div class="relative w-full max-w-lg rounded-2xl bg-white shadow-xl border border-slate-200/60 overflow-hidden animate-fade-in">
+        <div class="px-6 py-5 border-b border-slate-200/60 flex items-start gap-3">
+            <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-sky-500/30 flex-shrink-0">
+                <i class="fas fa-plus text-xl"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg sm:text-xl font-bold text-slate-800">Tambah Tag</h3>
+                <p class="text-slate-600 text-sm sm:text-base">Buat tag baru untuk blog Anda.</p>
+            </div>
+            <button type="button" id="closeCreateTagModal" class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors" aria-label="Tutup modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="/dashboard/tags/process.php" id="createTagForm" class="px-6 py-6 space-y-5">
+            <input type="hidden" name="action" value="create">
+            <div class="grid grid-cols-1 gap-4">
+                <label class="space-y-2">
+                    <span class="text-sm font-semibold text-slate-700">Nama Tag <span class="text-red-500">*</span></span>
+                    <input type="text" name="name" required
+                        class="w-full rounded-xl border border-slate-200/80 px-4 py-3 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition-all bg-white/90"
+                        placeholder="Masukkan nama tag">
+                    <p class="text-xs text-slate-500">Nama tag akan ditampilkan di blog. Tags ID akan di-generate otomatis dari nama tag.</p>
+                </label>
+            </div>
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+                <div class="text-xs text-slate-500">
+                    Pastikan nama tag unik dan mudah diingat.
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" id="cancelCreateTag" class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl border border-slate-200 hover:bg-slate-200 transition-all duration-200">
+                        <i class="fas fa-times"></i>
+                        <span>Batal</span>
+                    </button>
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+                        <i class="fas fa-save"></i>
+                        <span>Simpan Tag</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Tag Modal -->
+<div id="editTagModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div id="editTagBackdrop" class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
+
+    <div class="relative w-full max-w-lg rounded-2xl bg-white shadow-xl border border-slate-200/60 overflow-hidden animate-fade-in">
+        <div class="px-6 py-5 border-b border-slate-200/60 flex items-start gap-3">
+            <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/30 flex-shrink-0">
+                <i class="fas fa-edit text-xl"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg sm:text-xl font-bold text-slate-800">Edit Tag</h3>
+                <p class="text-slate-600 text-sm sm:text-base">Edit informasi tag.</p>
+            </div>
+            <button type="button" id="closeEditTagModal" class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors" aria-label="Tutup modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="/dashboard/tags/process.php" id="editTagForm" class="px-6 py-6 space-y-5">
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="id" id="editTagId">
+            <div class="grid grid-cols-1 gap-4">
+                <label class="space-y-2">
+                    <span class="text-sm font-semibold text-slate-700">Nama Tag <span class="text-red-500">*</span></span>
+                    <input type="text" name="name" id="editTagName" required
+                        class="w-full rounded-xl border border-slate-200/80 px-4 py-3 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition-all bg-white/90"
+                        placeholder="Masukkan nama tag">
+                    <p class="text-xs text-slate-500">Nama tag akan ditampilkan di blog. Tags ID akan di-generate otomatis dari nama tag.</p>
+                </label>
+            </div>
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+                <div class="text-xs text-slate-500">
+                    Setelah disimpan, perubahan akan langsung diterapkan.
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" id="cancelEditTag" class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl border border-slate-200 hover:bg-slate-200 transition-all duration-200">
+                        <i class="fas fa-times"></i>
+                        <span>Batal</span>
+                    </button>
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+                        <i class="fas fa-save"></i>
+                        <span>Update Tag</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 </body>

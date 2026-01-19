@@ -57,11 +57,11 @@ include __DIR__ . '/../header.php';
                             <span class="text-sm font-semibold text-slate-700"><?php echo number_format($totalCategories); ?></span>
                             <span class="text-slate-500 text-sm">kategori</span>
                         </div>
-                        <a href="/dashboard/category/create.php"
+                        <button type="button" id="openCreateCategoryModal"
                             class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-blue-600 rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
                             <i class="fas fa-plus"></i>
                             <span>Tambah Kategori</span>
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -95,11 +95,11 @@ include __DIR__ . '/../header.php';
                                             </div>
                                             <p class="text-slate-500 font-medium">Belum ada kategori</p>
                                             <p class="text-slate-400 text-sm mt-1">Mulai dengan menambahkan kategori pertama</p>
-                                            <a href="/dashboard/category/create.php"
+                                            <button type="button" id="openCreateCategoryModalEmpty"
                                                 class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-colors">
                                                 <i class="fas fa-plus"></i>
                                                 <span>Tambah Kategori</span>
-                                            </a>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -147,11 +147,13 @@ include __DIR__ . '/../header.php';
                                         </td>
                                         <td class="px-4 sm:px-6 py-4">
                                             <div class="flex items-center gap-2">
-                                                <a href="/dashboard/category/edit.php?id=<?php echo $category['id']; ?>"
-                                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit">
+                                                <button type="button"
+                                                    class="openEditCategoryModal p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    title="Edit"
+                                                    data-category-id="<?php echo htmlspecialchars($category['id']); ?>"
+                                                    data-category-name="<?php echo htmlspecialchars($category['name']); ?>">
                                                     <i class="fas fa-edit"></i>
-                                                </a>
+                                                </button>
                                                 <form action="/dashboard/category/process.php" method="POST" class="inline"
                                                     onsubmit="return confirm('Apakah Anda yakin ingin menghapus kategori ini?');">
                                                     <input type="hidden" name="action" value="delete">
@@ -173,6 +175,105 @@ include __DIR__ . '/../header.php';
             </div>
         </div>
     </main>
+</div>
+
+<!-- Create Category Modal -->
+<div id="createCategoryModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div id="createCategoryBackdrop" class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
+
+    <div class="relative w-full max-w-lg rounded-2xl bg-white shadow-xl border border-slate-200/60 overflow-hidden animate-fade-in">
+        <div class="px-6 py-5 border-b border-slate-200/60 flex items-start gap-3">
+            <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-sky-500/30 flex-shrink-0">
+                <i class="fas fa-plus text-xl"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg sm:text-xl font-bold text-slate-800">Tambah Kategori</h3>
+                <p class="text-slate-600 text-sm sm:text-base">Buat kategori baru untuk blog Anda.</p>
+            </div>
+            <button type="button" id="closeCreateCategoryModal" class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors" aria-label="Tutup modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="/dashboard/category/process.php" id="createCategoryForm" class="px-6 py-6 space-y-5">
+            <input type="hidden" name="action" value="create">
+            <div class="grid grid-cols-1 gap-4">
+                <label class="space-y-2">
+                    <span class="text-sm font-semibold text-slate-700">Nama Kategori <span class="text-red-500">*</span></span>
+                    <input type="text" name="name" required
+                        class="w-full rounded-xl border border-slate-200/80 px-4 py-3 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition-all bg-white/90"
+                        placeholder="Masukkan nama kategori">
+                    <p class="text-xs text-slate-500">Nama kategori akan ditampilkan di blog. Categories ID akan di-generate otomatis dari nama kategori.</p>
+                </label>
+            </div>
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+                <div class="text-xs text-slate-500">
+                    Pastikan nama kategori unik dan mudah diingat.
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" id="cancelCreateCategory" class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl border border-slate-200 hover:bg-slate-200 transition-all duration-200">
+                        <i class="fas fa-times"></i>
+                        <span>Batal</span>
+                    </button>
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+                        <i class="fas fa-save"></i>
+                        <span>Simpan Kategori</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div id="editCategoryModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div id="editCategoryBackdrop" class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
+
+    <div class="relative w-full max-w-lg rounded-2xl bg-white shadow-xl border border-slate-200/60 overflow-hidden animate-fade-in">
+        <div class="px-6 py-5 border-b border-slate-200/60 flex items-start gap-3">
+            <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/30 flex-shrink-0">
+                <i class="fas fa-edit text-xl"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg sm:text-xl font-bold text-slate-800">Edit Kategori</h3>
+                <p class="text-slate-600 text-sm sm:text-base">Edit informasi kategori.</p>
+            </div>
+            <button type="button" id="closeEditCategoryModal" class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors" aria-label="Tutup modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="/dashboard/category/process.php" id="editCategoryForm" class="px-6 py-6 space-y-5">
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="id" id="editCategoryId">
+            <div class="grid grid-cols-1 gap-4">
+                <label class="space-y-2">
+                    <span class="text-sm font-semibold text-slate-700">Nama Kategori <span class="text-red-500">*</span></span>
+                    <input type="text" name="name" id="editCategoryName" required
+                        class="w-full rounded-xl border border-slate-200/80 px-4 py-3 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition-all bg-white/90"
+                        placeholder="Masukkan nama kategori">
+                    <p class="text-xs text-slate-500">Nama kategori akan ditampilkan di blog. Categories ID akan di-generate otomatis dari nama kategori.</p>
+                </label>
+            </div>
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+                <div class="text-xs text-slate-500">
+                    Setelah disimpan, perubahan akan langsung diterapkan.
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" id="cancelEditCategory" class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl border border-slate-200 hover:bg-slate-200 transition-all duration-200">
+                        <i class="fas fa-times"></i>
+                        <span>Batal</span>
+                    </button>
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+                        <i class="fas fa-save"></i>
+                        <span>Update Kategori</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 </body>

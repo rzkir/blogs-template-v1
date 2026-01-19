@@ -26,6 +26,51 @@ class TagsController
     }
 
     /**
+     * Get tags with pagination
+     */
+    public function getAllPaginated(int $limit, int $offset): array
+    {
+        $limit = max(1, (int)$limit);
+        $offset = max(0, (int)$offset);
+
+        $tags = [];
+        $stmt = $this->db->prepare("
+            SELECT t.*, ac.fullname, ac.email
+            FROM `tags` t
+            LEFT JOIN `accounts` ac ON t.user_id = ac.id
+            ORDER BY t.created_at DESC
+            LIMIT ? OFFSET ?
+        ");
+        if (!$stmt) {
+            throw new Exception('Gagal menyiapkan query: ' . $this->db->error);
+        }
+        $stmt->bind_param('ii', $limit, $offset);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $tags[] = $row;
+        }
+        $stmt->close();
+        return $tags;
+    }
+
+    /**
+     * Get total tag count (for pagination)
+     */
+    public function getTotal(): int
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM `tags`");
+        if (!$stmt) {
+            throw new Exception('Gagal menyiapkan query: ' . $this->db->error);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $stmt->close();
+        return (int)($row['total'] ?? 0);
+    }
+
+    /**
      * Get single tag by ID with user information
      */
     public function getById(int $id): ?array

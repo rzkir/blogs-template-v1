@@ -32,9 +32,9 @@ if (!in_array($selectedViewSort, $allowedViewSort, true)) {
 
 // Pagination
 $limit = 10; // Posts per page
-$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$page = (int)$page; // Ensure integer type
-$offset = (int)(($page - 1) * $limit);
+// Baca nilai page dari URL, pastikan integer dan minimal 1
+$pageFromGet = isset($_GET['page']) && is_numeric($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$pageFromGet = (int)$pageFromGet; // Ensure integer type
 
 // Get categories for filter dropdown
 $categories = $categoriesController->getAll();
@@ -45,6 +45,27 @@ $totalPosts = (int)$controller->getTotalFiltered(
     $selectedStatus !== '' ? $selectedStatus : null
 );
 
+// Calculate pagination
+$totalPages = $totalPosts > 0 ? (int)ceil($totalPosts / $limit) : 1;
+// Pastikan totalPages minimal 1
+$totalPages = max(1, $totalPages);
+// Pastikan page tidak melebihi totalPages untuk query, tapi tetap gunakan nilai dari GET untuk kondisi
+$page = min($pageFromGet, $totalPages);
+$currentPage = (int)$page;
+$offset = (int)(($currentPage - 1) * $limit);
+
+// Base query params untuk pagination (hindari pakai $_GET mentah)
+$baseParams = [];
+if ($selectedCategoryId > 0) {
+    $baseParams['category'] = $selectedCategoryId;
+}
+if ($selectedStatus !== '') {
+    $baseParams['status'] = $selectedStatus;
+}
+if ($selectedViewSort !== '') {
+    $baseParams['view'] = $selectedViewSort;
+}
+
 // Get posts (with filters and pagination)
 $posts = $controller->getAllFiltered(
     $selectedCategoryId > 0 ? $selectedCategoryId : null,
@@ -53,10 +74,6 @@ $posts = $controller->getAllFiltered(
     $limit,
     $offset
 );
-
-// Calculate pagination
-$totalPages = $totalPosts > 0 ? (int)ceil($totalPosts / $limit) : 1;
-$currentPage = (int)min($page, $totalPages);
 
 include __DIR__ . '/../header.php';
 ?>
@@ -294,35 +311,16 @@ include __DIR__ . '/../header.php';
                             </div>
 
                             <div class="flex items-center gap-2">
-                                <!-- Previous Button -->
-                                <?php if ($currentPage > 1): ?>
-                                    <?php
-                                    $prevParams = $_GET;
-                                    $prevParams['page'] = (int)$currentPage - 1;
-                                    $prevUrl = '/dashboard/post/index.php?' . http_build_query($prevParams);
-                                    ?>
-                                    <a href="<?php echo htmlspecialchars($prevUrl); ?>"
-                                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
-                                        <i class="fas fa-chevron-left"></i>
-                                        <span>Sebelumnya</span>
-                                    </a>
-                                <?php else: ?>
-                                    <span class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-400 bg-slate-100 border border-slate-200 rounded-xl cursor-not-allowed">
-                                        <i class="fas fa-chevron-left"></i>
-                                        <span>Sebelumnya</span>
-                                    </span>
-                                <?php endif; ?>
-
                                 <!-- Page Numbers -->
                                 <div class="flex items-center gap-1">
                                     <?php
                                     // Pastikan operasi aritmatika menggunakan integer
                                     $startPage = max(1, (int)$currentPage - 2);
-                                    $endPage = min($totalPages, (int)$currentPage + 2);
+                                    $endPage = min((int)$totalPages, (int)$currentPage + 2);
 
                                     if ($startPage > 1): ?>
                                         <?php
-                                        $firstParams = $_GET;
+                                        $firstParams = $baseParams;
                                         $firstParams['page'] = 1;
                                         $firstUrl = '/dashboard/post/index.php?' . http_build_query($firstParams);
                                         ?>
@@ -337,7 +335,7 @@ include __DIR__ . '/../header.php';
 
                                     <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
                                         <?php
-                                        $pageParams = $_GET;
+                                        $pageParams = $baseParams;
                                         $pageParams['page'] = (int)$i;
                                         $pageUrl = '/dashboard/post/index.php?' . http_build_query($pageParams);
                                         ?>
@@ -358,7 +356,7 @@ include __DIR__ . '/../header.php';
                                             <span class="px-2 text-slate-400">...</span>
                                         <?php endif; ?>
                                         <?php
-                                        $lastParams = $_GET;
+                                        $lastParams = $baseParams;
                                         $lastParams['page'] = (int)$totalPages;
                                         $lastUrl = '/dashboard/post/index.php?' . http_build_query($lastParams);
                                         ?>
@@ -368,25 +366,6 @@ include __DIR__ . '/../header.php';
                                         </a>
                                     <?php endif; ?>
                                 </div>
-
-                                <!-- Next Button -->
-                                <?php if ((int)$currentPage < (int)$totalPages): ?>
-                                    <?php
-                                    $nextParams = $_GET;
-                                    $nextParams['page'] = (int)$currentPage + 1;
-                                    $nextUrl = '/dashboard/post/index.php?' . http_build_query($nextParams);
-                                    ?>
-                                    <a href="<?php echo htmlspecialchars($nextUrl); ?>"
-                                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
-                                        <span>Selanjutnya</span>
-                                        <i class="fas fa-chevron-right"></i>
-                                    </a>
-                                <?php else: ?>
-                                    <span class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-400 bg-slate-100 border border-slate-200 rounded-xl cursor-not-allowed">
-                                        <span>Selanjutnya</span>
-                                        <i class="fas fa-chevron-right"></i>
-                                    </span>
-                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

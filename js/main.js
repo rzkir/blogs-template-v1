@@ -1316,3 +1316,193 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     })();
 });
+
+//======================= Dashboard: Category Modals =======================//
+document.addEventListener('DOMContentLoaded', function () {
+    // Create Category Modal
+    (function () {
+        const openBtn = document.getElementById('openCreateCategoryModal');
+        const openBtnEmpty = document.getElementById('openCreateCategoryModalEmpty');
+        const modal = document.getElementById('createCategoryModal');
+        const backdrop = document.getElementById('createCategoryBackdrop');
+        const closeBtn = document.getElementById('closeCreateCategoryModal');
+        const cancelBtn = document.getElementById('cancelCreateCategory');
+        const form = document.getElementById('createCategoryForm');
+
+        if (!modal) return;
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+            setTimeout(function () {
+                const firstInput = modal.querySelector('input[name="name"]');
+                if (firstInput) firstInput.focus();
+            }, 50);
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+            if (form) form.reset();
+        }
+
+        if (openBtn) openBtn.addEventListener('click', openModal);
+        if (openBtnEmpty) openBtnEmpty.addEventListener('click', openModal);
+        if (backdrop) backdrop.addEventListener('click', closeModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+    })();
+
+    // Edit Category Modal
+    (function () {
+        const modal = document.getElementById('editCategoryModal');
+        const backdrop = document.getElementById('editCategoryBackdrop');
+        const closeBtn = document.getElementById('closeEditCategoryModal');
+        const cancelBtn = document.getElementById('cancelEditCategory');
+        const form = document.getElementById('editCategoryForm');
+        const editButtons = document.querySelectorAll('.openEditCategoryModal');
+
+        if (!modal) return;
+
+        function openModal(categoryId, categoryName) {
+            const idInput = document.getElementById('editCategoryId');
+            const nameInput = document.getElementById('editCategoryName');
+            if (idInput) idInput.value = categoryId;
+            if (nameInput) nameInput.value = categoryName;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+            setTimeout(function () {
+                if (nameInput) nameInput.focus();
+            }, 50);
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+            if (form) form.reset();
+        }
+
+        editButtons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const categoryId = this.getAttribute('data-category-id');
+                const categoryName = this.getAttribute('data-category-name');
+                openModal(categoryId, categoryName);
+            });
+        });
+
+        if (backdrop) backdrop.addEventListener('click', closeModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+    })();
+});
+
+//======================= Dashboard: Tag Modals =======================//
+document.addEventListener('DOMContentLoaded', function () {
+    // Create Tag Modal
+    (function () {
+        const openBtn = document.getElementById('openCreateTagModal');
+        const openBtnEmpty = document.getElementById('openCreateTagModalEmpty');
+        const modal = document.getElementById('createTagModal');
+        const backdrop = document.getElementById('createTagBackdrop');
+        const closeBtn = document.getElementById('closeCreateTagModal');
+        const cancelBtn = document.getElementById('cancelCreateTag');
+        const form = document.getElementById('createTagForm');
+
+        if (!modal) return;
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+            setTimeout(function () {
+                const firstInput = modal.querySelector('input[name="name"]');
+                if (firstInput) firstInput.focus();
+            }, 50);
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+            if (form) form.reset();
+        }
+
+        if (openBtn) openBtn.addEventListener('click', openModal);
+        if (openBtnEmpty) openBtnEmpty.addEventListener('click', openModal);
+        if (backdrop) backdrop.addEventListener('click', closeModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+    })();
+
+    // Edit Tag Modal
+    (function () {
+        const modal = document.getElementById('editTagModal');
+        const backdrop = document.getElementById('editTagBackdrop');
+        const closeBtn = document.getElementById('closeEditTagModal');
+        const cancelBtn = document.getElementById('cancelEditTag');
+        const form = document.getElementById('editTagForm');
+        const editButtons = document.querySelectorAll('.openEditTagModal');
+
+        if (!modal) return;
+
+        function openModal(tagId, tagName) {
+            const idInput = document.getElementById('editTagId');
+            const nameInput = document.getElementById('editTagName');
+            if (idInput) idInput.value = tagId;
+            if (nameInput) nameInput.value = tagName;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+            setTimeout(function () {
+                if (nameInput) nameInput.focus();
+            }, 50);
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+            if (form) form.reset();
+        }
+
+        editButtons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const tagId = this.getAttribute('data-tag-id');
+                const tagName = this.getAttribute('data-tag-name');
+                openModal(tagId, tagName);
+            });
+        });
+
+        if (backdrop) backdrop.addEventListener('click', closeModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+    })();
+});
