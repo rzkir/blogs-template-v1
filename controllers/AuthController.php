@@ -223,7 +223,7 @@ class AuthController
             $this->log($newUserId, 'register_success', 'Registrasi admin baru: ' . $email);
 
             $_SESSION['success'] = 'Registrasi berhasil. Silakan login.';
-            header('Location: login.php');
+            header('Location: login');
             exit;
         } catch (Throwable $e) {
             error_log('Register error: ' . $e->getMessage());
@@ -245,13 +245,13 @@ class AuthController
         $lock = $this->getIpLockState($ip);
         if ($lock['blocked']) {
             $_SESSION['error'] = 'Terlalu banyak percobaan login gagal dari IP ini. Coba lagi setelah 15 menit.';
-            header('Location: login.php');
+            header('Location: login');
             exit;
         }
 
         if ($email === '' || $password === '') {
             $_SESSION['error'] = 'Email/Nama lengkap dan password wajib diisi.';
-            header('Location: login.php');
+            header('Location: login');
             exit;
         }
 
@@ -280,14 +280,14 @@ class AuthController
                     $_SESSION['error'] = 'Email/Nama lengkap atau password salah. Sisa percobaan: ' . $remaining . 'x.';
                 }
 
-                header('Location: login.php');
+                header('Location: login');
                 exit;
             }
 
             if ($user['role'] !== 'admin') {
                 $_SESSION['error'] = 'Akses ditolak. Akun ini bukan admin.';
                 $this->log((int)$user['id'], 'login_denied', 'Role bukan admin untuk email/nama ' . $email);
-                header('Location: login.php');
+                header('Location: login');
                 exit;
             }
 
@@ -310,7 +310,7 @@ class AuthController
             error_log('Login error: ' . $e->getMessage());
             $this->log(null, 'login_error', $e->getMessage());
             $_SESSION['error'] = 'Terjadi kesalahan pada server. Coba lagi nanti.';
-            header('Location: login.php');
+            header('Location: login');
             exit;
         }
     }
@@ -356,6 +356,47 @@ class AuthController
         } catch (Throwable $e) {
             error_log('Change password error: ' . $e->getMessage());
             return ['success' => false, 'message' => 'Terjadi kesalahan saat mengubah password.'];
+        }
+    }
+
+    /**
+     * Change user fullname helper.
+     * Returns array: ['success' => bool, 'message' => string, 'fullname' => ?string]
+     */
+    public function changeName(int $userId, string $newFullname): array
+    {
+        $newFullname = trim($newFullname);
+
+        if ($newFullname === '') {
+            return ['success' => false, 'message' => 'Nama lengkap wajib diisi.', 'fullname' => null];
+        }
+
+        // simple length guard to avoid abuse / accidental huge input
+        if (mb_strlen($newFullname) < 3) {
+            return ['success' => false, 'message' => 'Nama lengkap minimal 3 karakter.', 'fullname' => null];
+        }
+        if (mb_strlen($newFullname) > 100) {
+            return ['success' => false, 'message' => 'Nama lengkap maksimal 100 karakter.', 'fullname' => null];
+        }
+
+        try {
+            $stmt = $this->db->prepare("UPDATE `accounts` SET fullname = ?, updated_at = NOW() WHERE id = ?");
+            $stmt->bind_param('si', $newFullname, $userId);
+            $stmt->execute();
+            $affected = $stmt->affected_rows;
+            $stmt->close();
+
+            // treat unchanged name as success (no-op)
+            $this->log($userId, 'change_name', 'User changed fullname');
+
+            if ($affected < 0) {
+                return ['success' => false, 'message' => 'Gagal memperbarui nama.', 'fullname' => null];
+            }
+
+            return ['success' => true, 'message' => 'Nama berhasil diperbarui.', 'fullname' => $newFullname];
+        } catch (Throwable $e) {
+            error_log('Change name error: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Terjadi kesalahan saat mengubah nama.', 'fullname' => null];
         }
     }
 

@@ -9,12 +9,54 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? '') !== 'admin') 
 
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../controllers/PostController.php';
+require_once __DIR__ . '/../../controllers/CategoriesController.php';
 
 $user = $_SESSION['user'];
 $controller = new PostController($db);
+$categoriesController = new CategoriesController($db);
 
-// Get all posts
-$posts = $controller->getAll();
+// Filters (GET)
+$selectedCategoryId = isset($_GET['category']) ? (int)$_GET['category'] : 0;
+$selectedStatus = isset($_GET['status']) ? trim((string)$_GET['status']) : '';
+$selectedViewSort = isset($_GET['view']) ? trim((string)$_GET['view']) : '';
+
+$allowedStatuses = ['published', 'draft', 'archived'];
+if (!in_array($selectedStatus, $allowedStatuses, true)) {
+    $selectedStatus = '';
+}
+
+$allowedViewSort = ['views_desc', 'views_asc'];
+if (!in_array($selectedViewSort, $allowedViewSort, true)) {
+    $selectedViewSort = '';
+}
+
+// Pagination
+$limit = 10; // Posts per page
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$page = (int)$page; // Ensure integer type
+$offset = (int)(($page - 1) * $limit);
+
+// Get categories for filter dropdown
+$categories = $categoriesController->getAll();
+
+// Get total posts count (with filters)
+$totalPosts = (int)$controller->getTotalFiltered(
+    $selectedCategoryId > 0 ? $selectedCategoryId : null,
+    $selectedStatus !== '' ? $selectedStatus : null
+);
+
+// Get posts (with filters and pagination)
+$posts = $controller->getAllFiltered(
+    $selectedCategoryId > 0 ? $selectedCategoryId : null,
+    $selectedStatus !== '' ? $selectedStatus : null,
+    $selectedViewSort !== '' ? $selectedViewSort : null,
+    $limit,
+    $offset
+);
+
+// Calculate pagination
+$totalPages = $totalPosts > 0 ? (int)ceil($totalPosts / $limit) : 1;
+$currentPage = (int)min($page, $totalPages);
 
 include __DIR__ . '/../header.php';
 ?>
@@ -26,29 +68,101 @@ include __DIR__ . '/../header.php';
     <main class="flex-1 lg:ml-64 pt-4 lg:pt-6 p-4 sm:p-6 min-h-screen relative z-10">
         <div class="container mx-auto animate-fade-in">
             <!-- Page Header -->
-            <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                        Posts
-                    </h2>
-                    <p class="text-slate-600 mt-2 text-sm sm:text-base">
-                        Kelola artikel blog Anda
-                    </p>
+            <div class="mb-6 sm:mb-8 relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-slate-200/60 shadow-lg shadow-slate-200/50">
+                <div class="absolute inset-0 bg-gradient-to-br from-amber-50/60 via-transparent to-sky-50/40 pointer-events-none"></div>
+                <div class="absolute top-0 right-0 w-64 h-64 bg-amber-200/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-sky-200/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl pointer-events-none"></div>
+
+                <div class="relative px-5 sm:px-6 py-5 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+                    <div class="flex items-start sm:items-center gap-4">
+                        <div class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/25 ring-4 ring-sky-500/10">
+                            <i class="fas fa-newspaper text-white text-xl sm:text-2xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">
+                                Posts
+                            </h2>
+                            <p class="text-slate-500 mt-1 text-sm">
+                                Kelola artikel, status, dan performa blog Anda
+                            </p>
+                            <div class="mt-2 inline-flex items-center gap-1.5 text-xs text-slate-400">
+                                <i class="fas fa-stream"></i>
+                                <span>Konten & publikasi</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+                        <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100/80 border border-slate-200/60">
+                            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span class="text-sm font-semibold text-slate-700"><?php echo number_format($totalPosts); ?></span>
+                            <span class="text-slate-500 text-sm">posts</span>
+                        </div>
+                        <a href="/dashboard/post/create.php"
+                            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-blue-600 rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+                            <i class="fas fa-plus"></i>
+                            <span>Tambah Post</span>
+                        </a>
+                    </div>
                 </div>
-                <a href="/dashboard/post/create.php"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 font-semibold">
-                    <i class="fas fa-plus"></i>
-                    <span>Tambah Post</span>
-                </a>
             </div>
 
             <!-- Posts Table -->
             <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200/50 overflow-hidden">
                 <div class="px-4 sm:px-6 py-4 border-b border-slate-200/50 bg-gradient-to-r from-slate-50 to-white">
-                    <h3 class="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fas fa-newspaper text-sky-600"></i>
-                        Daftar Posts
-                    </h3>
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <h3 class="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fas fa-newspaper text-sky-600"></i>
+                            Daftar Posts
+                        </h3>
+
+                        <form method="GET" class="flex flex-col sm:flex-row sm:items-end gap-3">
+                            <input type="hidden" name="page" value="1">
+                            <div class="flex flex-col gap-1">
+                                <label class="text-xs font-semibold text-slate-600">Category</label>
+                                <select name="category" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-200">
+                                    <option value="0">Semua</option>
+                                    <?php if (!empty($categories)): ?>
+                                        <?php foreach ($categories as $cat): ?>
+                                            <option value="<?php echo (int)$cat['id']; ?>" <?php echo ((int)$selectedCategoryId === (int)$cat['id']) ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($cat['name']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+
+                            <div class="flex flex-col gap-1">
+                                <label class="text-xs font-semibold text-slate-600">Status</label>
+                                <select name="status" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-200">
+                                    <option value="">Semua</option>
+                                    <option value="published" <?php echo $selectedStatus === 'published' ? 'selected' : ''; ?>>Published</option>
+                                    <option value="draft" <?php echo $selectedStatus === 'draft' ? 'selected' : ''; ?>>Draft</option>
+                                    <option value="archived" <?php echo $selectedStatus === 'archived' ? 'selected' : ''; ?>>Archived</option>
+                                </select>
+                            </div>
+
+                            <div class="flex flex-col gap-1">
+                                <label class="text-xs font-semibold text-slate-600">View</label>
+                                <select name="view" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-200">
+                                    <option value="">Default</option>
+                                    <option value="views_desc" <?php echo $selectedViewSort === 'views_desc' ? 'selected' : ''; ?>>Terbanyak</option>
+                                    <option value="views_asc" <?php echo $selectedViewSort === 'views_asc' ? 'selected' : ''; ?>>Tersedikit</option>
+                                </select>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-sky-600 rounded-xl hover:bg-sky-700 transition-colors">
+                                    <i class="fas fa-filter"></i>
+                                    <span>Filter</span>
+                                </button>
+                                <a href="/dashboard/post/index.php" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
+                                    <i class="fas fa-rotate-left"></i>
+                                    <span>Reset</span>
+                                </a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full">
@@ -168,6 +282,115 @@ include __DIR__ . '/../header.php';
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination -->
+                <?php if ($totalPages > 1): ?>
+                    <div class="px-4 sm:px-6 py-4 border-t border-slate-200/50 bg-gradient-to-r from-slate-50 to-white">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="text-sm text-slate-600">
+                                Menampilkan <span class="font-semibold"><?php echo min((int)$offset + 1, (int)$totalPosts); ?></span> -
+                                <span class="font-semibold"><?php echo min((int)$offset + count($posts), (int)$totalPosts); ?></span> dari
+                                <span class="font-semibold"><?php echo number_format((int)$totalPosts); ?></span> posts
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <!-- Previous Button -->
+                                <?php if ($currentPage > 1): ?>
+                                    <?php
+                                    $prevParams = $_GET;
+                                    $prevParams['page'] = (int)$currentPage - 1;
+                                    $prevUrl = '/dashboard/post/index.php?' . http_build_query($prevParams);
+                                    ?>
+                                    <a href="<?php echo htmlspecialchars($prevUrl); ?>"
+                                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
+                                        <i class="fas fa-chevron-left"></i>
+                                        <span>Sebelumnya</span>
+                                    </a>
+                                <?php else: ?>
+                                    <span class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-400 bg-slate-100 border border-slate-200 rounded-xl cursor-not-allowed">
+                                        <i class="fas fa-chevron-left"></i>
+                                        <span>Sebelumnya</span>
+                                    </span>
+                                <?php endif; ?>
+
+                                <!-- Page Numbers -->
+                                <div class="flex items-center gap-1">
+                                    <?php
+                                    // Pastikan operasi aritmatika menggunakan integer
+                                    $startPage = max(1, (int)$currentPage - 2);
+                                    $endPage = min($totalPages, (int)$currentPage + 2);
+
+                                    if ($startPage > 1): ?>
+                                        <?php
+                                        $firstParams = $_GET;
+                                        $firstParams['page'] = 1;
+                                        $firstUrl = '/dashboard/post/index.php?' . http_build_query($firstParams);
+                                        ?>
+                                        <a href="<?php echo htmlspecialchars($firstUrl); ?>"
+                                            class="px-3 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                                            1
+                                        </a>
+                                        <?php if ($startPage > 2): ?>
+                                            <span class="px-2 text-slate-400">...</span>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+
+                                    <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                                        <?php
+                                        $pageParams = $_GET;
+                                        $pageParams['page'] = (int)$i;
+                                        $pageUrl = '/dashboard/post/index.php?' . http_build_query($pageParams);
+                                        ?>
+                                        <?php if ((int)$i === (int)$currentPage): ?>
+                                            <span class="px-3 py-2 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-blue-600 rounded-lg shadow-md">
+                                                <?php echo $i; ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <a href="<?php echo htmlspecialchars($pageUrl); ?>"
+                                                class="px-3 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                                                <?php echo $i; ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    <?php endfor; ?>
+
+                                    <?php if ($endPage < $totalPages): ?>
+                                        <?php if ($endPage < $totalPages - 1): ?>
+                                            <span class="px-2 text-slate-400">...</span>
+                                        <?php endif; ?>
+                                        <?php
+                                        $lastParams = $_GET;
+                                        $lastParams['page'] = (int)$totalPages;
+                                        $lastUrl = '/dashboard/post/index.php?' . http_build_query($lastParams);
+                                        ?>
+                                        <a href="<?php echo htmlspecialchars($lastUrl); ?>"
+                                            class="px-3 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                                            <?php echo $totalPages; ?>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+
+                                <!-- Next Button -->
+                                <?php if ((int)$currentPage < (int)$totalPages): ?>
+                                    <?php
+                                    $nextParams = $_GET;
+                                    $nextParams['page'] = (int)$currentPage + 1;
+                                    $nextUrl = '/dashboard/post/index.php?' . http_build_query($nextParams);
+                                    ?>
+                                    <a href="<?php echo htmlspecialchars($nextUrl); ?>"
+                                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
+                                        <span>Selanjutnya</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <span class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-400 bg-slate-100 border border-slate-200 rounded-xl cursor-not-allowed">
+                                        <span>Selanjutnya</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </main>

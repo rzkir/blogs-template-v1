@@ -398,6 +398,124 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
+
+    // Auto-inject "eye" toggle for password fields that don't have one yet
+    // (e.g. dashboard/profile change password modal inputs)
+    (function initAutoPasswordEyes() {
+        /**
+         * @param {HTMLInputElement} input
+         */
+        function hasExistingToggleForInput(input) {
+            // Existing patterns in this project:
+            // - login: button#togglePassword controls input#password
+            // - register: button[data-toggle-password="<inputId>"]
+            if (input.id === "password" && document.getElementById("togglePassword")) return true;
+            if (input.id && document.querySelector(`[data-toggle-password="${CSS.escape(input.id)}"]`)) return true;
+            // Generic: any nearby button explicitly marked as toggle
+            const parent = input.parentElement;
+            if (!parent) return false;
+            return Boolean(parent.querySelector('[data-toggle-password], #togglePassword, [data-password-eye-btn="true"]'));
+        }
+
+        /**
+         * @param {HTMLInputElement} input
+         */
+        function attachEyeToggle(input) {
+            if (input.dataset.passwordEyeAttached === "true") return;
+            if (hasExistingToggleForInput(input)) return;
+            if (input.closest('[data-no-password-eye="true"]')) return;
+
+            const parent = input.parentElement;
+            if (!parent) return;
+
+            // We want the button positioned relative to a container that matches the input box,
+            // not the whole label (which may include a title/span above the input).
+            let fieldWrapper = parent;
+            const parentTag = (parent.tagName || "").toLowerCase();
+
+            // If input is inside a <label> (common in this project), create a wrapper div
+            // around the input so absolute positioning aligns with the input height.
+            if (parentTag === "label") {
+                const wrap = document.createElement("div");
+                wrap.setAttribute("data-password-eye-field", "true");
+                wrap.style.position = "relative";
+                wrap.style.display = "block";
+                // Insert wrapper right before the input and move input into it
+                parent.insertBefore(wrap, input);
+                wrap.appendChild(input);
+                fieldWrapper = wrap;
+            } else {
+                // Ensure the existing parent can position the button
+                const currentPos = window.getComputedStyle(fieldWrapper).position;
+                if (currentPos === "static" || !currentPos) {
+                    fieldWrapper.style.position = "relative";
+                }
+            }
+
+            // Add padding so text doesn't overlap button
+            const computedPaddingRight = parseFloat(window.getComputedStyle(input).paddingRight || "0");
+            if (computedPaddingRight < 44) {
+                input.style.paddingRight = "44px";
+            }
+
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.setAttribute("data-password-eye-btn", "true");
+            btn.setAttribute("aria-label", "Tampilkan password");
+
+            // Inline styles so it works without Tailwind scanning
+            btn.style.position = "absolute";
+            btn.style.right = "12px";
+            btn.style.top = "0";
+            btn.style.bottom = "0";
+            btn.style.display = "flex";
+            btn.style.alignItems = "center";
+            btn.style.background = "transparent";
+            btn.style.border = "0";
+            btn.style.padding = "6px";
+            btn.style.margin = "0";
+            btn.style.cursor = "pointer";
+            btn.style.color = "#64748b"; // slate-500
+            btn.style.lineHeight = "1";
+
+            const icon = document.createElement("i");
+            icon.className = "fas fa-eye";
+            btn.appendChild(icon);
+
+            btn.addEventListener("click", function () {
+                const isPassword = input.type === "password";
+                input.type = isPassword ? "text" : "password";
+                icon.classList.toggle("fa-eye", !isPassword);
+                icon.classList.toggle("fa-eye-slash", isPassword);
+                btn.setAttribute("aria-label", isPassword ? "Sembunyikan password" : "Tampilkan password");
+            });
+
+            fieldWrapper.appendChild(btn);
+            input.dataset.passwordEyeAttached = "true";
+        }
+
+        // Attach on initial load
+        const passwordInputs = document.querySelectorAll('input[type="password"]');
+        passwordInputs.forEach((input) => {
+            attachEyeToggle(/** @type {HTMLInputElement} */(input));
+        });
+
+        // Also attach when modals open / DOM changes (cheap observer)
+        const observer = new MutationObserver(function (mutations) {
+            for (const m of mutations) {
+                if (m.type !== "childList") continue;
+                m.addedNodes.forEach((node) => {
+                    if (!(node instanceof Element)) return;
+                    const inputs = node.matches('input[type="password"]')
+                        ? [node]
+                        : Array.from(node.querySelectorAll('input[type="password"]'));
+                    inputs.forEach((inp) => attachEyeToggle(/** @type {HTMLInputElement} */(inp)));
+                });
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    })();
 });
 
 //======================= Profile Dropdown Toggle =======================//
@@ -1045,3 +1163,156 @@ document.addEventListener('DOMContentLoaded', function () {
         initBreakingNewsTicker();
     }
 })();
+
+//======================= Mobile Menu Toggle & Back to Top =======================//
+(function () {
+    function initFooterScripts() {
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', function () {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+        // Back to top - tampil hanya saat di-scroll
+        const backToTop = document.getElementById('footerBackToTop');
+        const scrollThreshold = 300;
+
+        function toggleBackToTop() {
+            if (backToTop) {
+                if (window.scrollY > scrollThreshold) {
+                    backToTop.classList.add('is-visible');
+                } else {
+                    backToTop.classList.remove('is-visible');
+                }
+            }
+        }
+
+        if (backToTop) {
+            backToTop.addEventListener('click', function (e) {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            toggleBackToTop();
+            window.addEventListener('scroll', toggleBackToTop, { passive: true });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFooterScripts);
+    } else {
+        initFooterScripts();
+    }
+})();
+
+//======================= Dashboard: Mobile Sidebar Toggle =======================//
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const menuBtn = document.getElementById('mobile-menu-btn');
+
+    if (!sidebar || !overlay || !menuBtn) return;
+
+    function toggleSidebar() {
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden');
+    }
+
+    menuBtn.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+
+    // Close sidebar when clicking a link on mobile
+    const sidebarLinks = sidebar.querySelectorAll('a');
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function () {
+            if (window.innerWidth < 1024) {
+                toggleSidebar();
+            }
+        });
+    });
+});
+
+//======================= Dashboard: Profile Modals =======================//
+document.addEventListener('DOMContentLoaded', function () {
+    // Change Password Modal
+    (function () {
+        const openBtn = document.getElementById('openChangePasswordModal');
+        const modal = document.getElementById('changePasswordModal');
+        const backdrop = document.getElementById('changePasswordBackdrop');
+        const closeBtn = document.getElementById('closeChangePasswordModal');
+        const cancelBtn = document.getElementById('cancelChangePassword');
+        const form = document.getElementById('changePasswordForm');
+
+        if (!openBtn || !modal) return;
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+            setTimeout(function () {
+                const firstInput = modal.querySelector('input[name="current_password"]');
+                if (firstInput) firstInput.focus();
+            }, 50);
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+            if (form) form.reset();
+        }
+
+        openBtn.addEventListener('click', openModal);
+        if (backdrop) backdrop.addEventListener('click', closeModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+    })();
+
+    // Change Name Modal
+    (function () {
+        const openBtn = document.getElementById('openChangeNameModal');
+        const modal = document.getElementById('changeNameModal');
+        const backdrop = document.getElementById('changeNameBackdrop');
+        const closeBtn = document.getElementById('closeChangeNameModal');
+        const cancelBtn = document.getElementById('cancelChangeName');
+        const form = document.getElementById('changeNameForm');
+
+        if (!openBtn || !modal) return;
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+            setTimeout(function () {
+                const input = modal.querySelector('input[name="fullname"]');
+                if (input) input.focus();
+            }, 50);
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+            if (form) form.reset();
+        }
+
+        openBtn.addEventListener('click', openModal);
+        if (backdrop) backdrop.addEventListener('click', closeModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+    })();
+});

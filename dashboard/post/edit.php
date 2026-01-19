@@ -63,28 +63,45 @@ include __DIR__ . '/../header.php';
 
     <!-- Main Content -->
     <main class="flex-1 lg:ml-64 pt-4 lg:pt-6 p-4 sm:p-6 min-h-screen relative z-10">
-        <div class="container mx-auto animate-fade-in max-w-4xl">
+        <div class="container mx-auto animate-fade-in">
             <!-- Page Header -->
-            <div class="mb-6 sm:mb-8">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-3">
-                        <a href="/dashboard/post/index.php"
-                            class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-                            <i class="fas fa-arrow-left"></i>
-                        </a>
-                        <h2 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                            Edit Post
-                        </h2>
+            <div class="mb-6 sm:mb-8 relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-slate-200/60 shadow-lg shadow-slate-200/50">
+                <div class="absolute inset-0 bg-gradient-to-br from-amber-50/60 via-transparent to-sky-50/40 pointer-events-none"></div>
+                <div class="absolute top-0 right-0 w-64 h-64 bg-amber-200/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-sky-200/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl pointer-events-none"></div>
+
+                <div class="relative px-5 sm:px-6 py-5 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+                    <div class="flex items-start sm:items-center gap-4">
+                        <div class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/25 ring-4 ring-amber-500/10">
+                            <i class="fas fa-edit text-white text-xl sm:text-2xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">
+                                Edit Post
+                            </h2>
+                            <p class="text-slate-500 mt-1 text-sm">
+                                Edit informasi post
+                            </p>
+                            <div class="mt-2 inline-flex items-center gap-1.5 text-xs text-slate-400">
+                                <i class="fas fa-pen-nib"></i>
+                                <span>Konten & publikasi</span>
+                            </div>
+                        </div>
                     </div>
-                    <button type="button" id="generateAllWithAI"
-                        class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all flex items-center gap-2 shadow-lg font-semibold">
-                        <i class="fas fa-magic"></i>
-                        <span>Generate Content with AI</span>
-                    </button>
+
+                    <div class="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+                        <a href="/dashboard/post/index.php"
+                            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white/80 border border-slate-200/80 rounded-xl hover:bg-slate-50 transition-colors">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Kembali</span>
+                        </a>
+                        <button type="button" id="generateAllWithAI"
+                            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+                            <i class="fas fa-magic"></i>
+                            <span>Generate Content with AI</span>
+                        </button>
+                    </div>
                 </div>
-                <p class="text-slate-600 mt-2 text-sm sm:text-base ml-11">
-                    Edit informasi post
-                </p>
             </div>
 
             <!-- Form Card -->

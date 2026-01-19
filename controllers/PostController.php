@@ -55,6 +55,173 @@ class PostController
     }
 
     /**
+     * Get posts with optional filters (dashboard use-case)
+     *
+     * Supported filters:
+     * - categories_id: int|null
+     * - status: 'published'|'draft'|'archived'|null
+     * - view_sort: 'views_desc'|'views_asc'|null
+     * - limit: int|null (for pagination)
+     * - offset: int|null (for pagination)
+     */
+    public function getAllFiltered(?int $categoriesId = null, ?string $status = null, ?string $viewSort = null, ?int $limit = null, ?int $offset = null): array
+    {
+        $posts = [];
+
+        $where = [];
+        $types = '';
+        $params = [];
+
+        if (!empty($categoriesId) && $categoriesId > 0) {
+            $where[] = 'p.categories_id = ?';
+            $types .= 'i';
+            $params[] = $categoriesId;
+        }
+
+        if (!empty($status)) {
+            $allowedStatuses = ['published', 'draft', 'archived'];
+            if (in_array($status, $allowedStatuses, true)) {
+                $where[] = 'p.status = ?';
+                $types .= 's';
+                $params[] = $status;
+            }
+        }
+
+        $orderBy = 'p.created_at DESC';
+        if ($viewSort === 'views_desc') {
+            $orderBy = 'p.views DESC, p.created_at DESC';
+        } elseif ($viewSort === 'views_asc') {
+            $orderBy = 'p.views ASC, p.created_at DESC';
+        }
+
+        $whereSql = '';
+        if (!empty($where)) {
+            $whereSql = 'WHERE ' . implode(' AND ', $where);
+        }
+
+        $limitSql = '';
+        if ($limit !== null && $limit > 0) {
+            $limitSql = 'LIMIT ?';
+            $types .= 'i';
+            $params[] = $limit;
+
+            if ($offset !== null && $offset >= 0) {
+                $limitSql .= ' OFFSET ?';
+                $types .= 'i';
+                $params[] = $offset;
+            }
+        }
+
+        $sql = "
+            SELECT 
+                p.*,
+                c.name as category_name,
+                c.categories_id as category_slug,
+                ac.fullname,
+                ac.email,
+                GROUP_CONCAT(DISTINCT t.id) as tag_ids,
+                GROUP_CONCAT(DISTINCT t.name) as tag_names
+            FROM `posts` p
+            LEFT JOIN `categories` c ON p.categories_id = c.id
+            LEFT JOIN `accounts` ac ON p.user_id = ac.id
+            LEFT JOIN `post_tags` pt ON p.id = pt.post_id
+            LEFT JOIN `tags` t ON pt.tag_id = t.id
+            $whereSql
+            GROUP BY p.id
+            ORDER BY $orderBy
+            $limitSql
+        ";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            throw new Exception('Gagal menyiapkan query: ' . $this->db->error);
+        }
+
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            // Parse tags
+            $row['tags'] = [];
+            if (!empty($row['tag_ids']) && !empty($row['tag_names'])) {
+                $tagIds = explode(',', $row['tag_ids']);
+                $tagNames = explode(',', $row['tag_names']);
+                for ($i = 0; $i < count($tagIds); $i++) {
+                    $row['tags'][] = [
+                        'id' => $tagIds[$i],
+                        'name' => $tagNames[$i] ?? ''
+                    ];
+                }
+            }
+            unset($row['tag_ids'], $row['tag_names']);
+            $posts[] = $row;
+        }
+        $stmt->close();
+
+        return $posts;
+    }
+
+    /**
+     * Get total count of posts with optional filters (for pagination)
+     *
+     * Supported filters:
+     * - categories_id: int|null
+     * - status: 'published'|'draft'|'archived'|null
+     */
+    public function getTotalFiltered(?int $categoriesId = null, ?string $status = null): int
+    {
+        $where = [];
+        $types = '';
+        $params = [];
+
+        if (!empty($categoriesId) && $categoriesId > 0) {
+            $where[] = 'p.categories_id = ?';
+            $types .= 'i';
+            $params[] = $categoriesId;
+        }
+
+        if (!empty($status)) {
+            $allowedStatuses = ['published', 'draft', 'archived'];
+            if (in_array($status, $allowedStatuses, true)) {
+                $where[] = 'p.status = ?';
+                $types .= 's';
+                $params[] = $status;
+            }
+        }
+
+        $whereSql = '';
+        if (!empty($where)) {
+            $whereSql = 'WHERE ' . implode(' AND ', $where);
+        }
+
+        $sql = "
+            SELECT COUNT(DISTINCT p.id) as total
+            FROM `posts` p
+            $whereSql
+        ";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            throw new Exception('Gagal menyiapkan query: ' . $this->db->error);
+        }
+
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $total = (int)($row['total'] ?? 0);
+        $stmt->close();
+
+        return $total;
+    }
+
+    /**
      * Get single post by ID with category, tags, and user information
      */
     public function getById(int $id): ?array

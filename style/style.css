@@ -837,10 +837,6 @@ body.theme-loaded header nav {
 
 /* Mobile Bottom Navigation Spacing */
 @media (max-width: 767px) {
-    body {
-        padding-bottom: 5rem;
-        /* Space for bottom navigation */
-    }
 
     /* Sidebar margin on mobile */
     aside {
@@ -1063,4 +1059,197 @@ button:focus {
     100% {
         transform: translateX(-50%);
     }
+}
+
+/* ===================== Footer Redesign ===================== */
+.footer {
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    color: var(--text-primary);
+    border-top: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .footer,
+html.dark .footer {
+    background: linear-gradient(180deg, #0f172a 0%, #0a0f1a 100%);
+    border-top-color: rgba(55, 65, 81, 0.6);
+}
+
+.footer-accent {
+    height: 4px;
+    background: linear-gradient(90deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+    width: 100%;
+}
+
+.footer-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: #dc2626;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.footer-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #dc2626;
+}
+
+[data-theme="dark"] .footer-section-title,
+html.dark .footer-section-title {
+    color: #f87171;
+}
+
+.footer-link {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-link:hover {
+    color: #dc2626;
+}
+
+[data-theme="dark"] .footer-link:hover,
+html.dark .footer-link:hover {
+    color: #f87171;
+}
+
+/* Newsletter */
+.footer-newsletter-input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.footer-newsletter-input:focus {
+    outline: none;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+.footer-newsletter-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.footer-newsletter-btn {
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.footer-newsletter-btn:hover {
+    background: #b91c1c;
+    transform: scale(1.05);
+}
+
+/* Social icons */
+.footer-social {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border-radius: 50%;
+    font-size: 0.875rem;
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.footer-social:hover {
+    background: #dc2626;
+    color: white;
+    transform: translateY(-2px);
+}
+
+[data-theme="dark"] .footer-social:hover,
+html.dark .footer-social:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* Bottom bar */
+.footer-bottom {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .footer-bottom,
+html.dark .footer-bottom {
+    border-top-color: rgba(55, 65, 81, 0.6);
+}
+
+.footer-legal-link {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+    transition: color 0.2s;
+}
+
+.footer-legal-link:hover {
+    color: #dc2626;
+}
+
+[data-theme="dark"] .footer-legal-link:hover,
+html.dark .footer-legal-link:hover {
+    color: #f87171;
+}
+
+/* Back to top */
+.footer-back-top {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #dc2626;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s, opacity 0.3s ease;
+    text-decoration: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.footer-back-top.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.footer-back-top:hover {
+    background: #b91c1c;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Footer dark mode overrides (legacy compatibility) */
+[data-theme="dark"] footer.bg-gray-900,
+[data-theme="dark"] .footer {
+    border-top-color: rgba(55, 65, 81, 0.6);
+}
+
+[data-theme="dark"] .footer .bg-gray-800 {
+    background-color: var(--bg-tertiary) !important;
 }
