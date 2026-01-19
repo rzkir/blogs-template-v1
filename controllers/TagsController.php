@@ -41,6 +41,21 @@ class TagsController
     }
 
     /**
+     * Get single tag by slug with user information
+     */
+    public function getBySlug(string $slug): ?array
+    {
+        $stmt = $this->db->prepare("SELECT t.*, ac.fullname, ac.email FROM `tags` t LEFT JOIN `accounts` ac ON t.user_id = ac.id WHERE t.tags_id = ?");
+        $stmt->bind_param('s', $slug);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $tag = $result->fetch_assoc();
+        $stmt->close();
+
+        return $tag ?: null;
+    }
+
+    /**
      * Create new tag
      */
     public function create(string $name, string $tagsId, int $userId): int

@@ -2,51 +2,56 @@
 session_start();
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../controllers/PostController.php';
-require_once __DIR__ . '/../controllers/CategoriesController.php';
+require_once __DIR__ . '/../controllers/TagsController.php';
 
 $controller = new PostController($db);
-$categoriesController = new CategoriesController($db);
+$tagsController = new TagsController($db);
 
-// Get category slug from URL
-$categorySlug = $_GET['slug'] ?? '';
+// Get tag slug from URL
+$tagSlug = $_GET['slug'] ?? '';
 
-if (empty($categorySlug)) {
-    // If no category specified, redirect to home
+if (empty($tagSlug)) {
+    // If no tag specified, redirect to home
     header('Location: /');
     exit;
 }
 
-// Get category information
-$category = $categoriesController->getBySlug($categorySlug);
+// Get tag information
+$tag = $tagsController->getBySlug($tagSlug);
 
-if (!$category) {
-    // Category not found, redirect to home
+if (!$tag) {
+    // Tag not found, redirect to home
     header('Location: /');
     exit;
 }
 
-// Get posts by category
-$posts = $controller->getByCategorySlug($categorySlug);
+// Get posts by tag
+$posts = $controller->getByTagSlug($tagSlug);
 
-// Get all categories for sidebar
-$categories = $categoriesController->getAll();
+// Get all tags for sidebar
+$tags = $tagsController->getAll();
 
-$pageTitle = $category['name'] . ' - Blog News';
+$pageTitle = $tag['name'] . ' - Blog News';
 include __DIR__ . '/../components/Header.php';
 ?>
 
 <!-- Main Content -->
 <main class="container mx-auto px-4 py-6">
-    <!-- Category Header -->
+    <!-- Tag Header -->
     <div class="mb-6">
         <div class="flex items-center gap-2 mb-2">
             <a href="/" class="text-gray-500 hover:text-red-600 transition-colors">
                 <i class="fas fa-home"></i> Beranda
             </a>
             <span class="text-gray-400">/</span>
-            <span class="text-gray-700 font-medium"><?php echo htmlspecialchars($category['name']); ?></span>
+            <span class="text-gray-500">Tags</span>
+            <span class="text-gray-400">/</span>
+            <span class="text-gray-700 font-medium"><?php echo htmlspecialchars($tag['name']); ?></span>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2"><?php echo htmlspecialchars($category['name']); ?></h1>
+        <div class="flex items-center gap-2 mb-2">
+            <i class="fas fa-tag text-red-600 text-2xl"></i>
+            <h1 class="text-3xl font-bold text-gray-900"><?php echo htmlspecialchars($tag['name']); ?></h1>
+        </div>
         <p class="text-gray-600">
             <?php echo count($posts); ?> artikel ditemukan
         </p>
@@ -145,16 +150,16 @@ include __DIR__ . '/../components/Header.php';
             <div class="mb-6">
                 <div class="flex items-center gap-2 mb-4">
                     <div class="h-1 w-12 bg-red-600"></div>
-                    <h2 class="text-xl font-bold text-gray-900">Berita <?php echo htmlspecialchars($category['name']); ?></h2>
+                    <h2 class="text-xl font-bold text-gray-900">Artikel dengan Tag "<?php echo htmlspecialchars($tag['name']); ?>"</h2>
                 </div>
 
                 <?php if (empty($posts)): ?>
                     <div class="bg-white rounded-lg shadow-sm p-12 text-center">
                         <div class="h-24 w-24 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-newspaper text-4xl text-gray-400"></i>
+                            <i class="fas fa-tag text-4xl text-gray-400"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-700 mb-2">Belum Ada Berita</h3>
-                        <p class="text-gray-500">Belum ada artikel dalam kategori <?php echo htmlspecialchars($category['name']); ?>.</p>
+                        <h3 class="text-xl font-bold text-gray-700 mb-2">Belum Ada Artikel</h3>
+                        <p class="text-gray-500">Belum ada artikel dengan tag <?php echo htmlspecialchars($tag['name']); ?>.</p>
                         <a href="/" class="inline-block mt-4 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                             Kembali ke Beranda
                         </a>
@@ -245,22 +250,22 @@ include __DIR__ . '/../components/Header.php';
                 </div>
             </div>
 
-            <!-- Popular Categories -->
+            <!-- Tags -->
             <div class="bg-white rounded-lg shadow-sm p-4">
                 <div class="flex items-center gap-2 mb-4">
                     <div class="h-1 w-8 bg-red-600"></div>
-                    <h3 class="text-lg font-bold text-gray-900">Kategori</h3>
+                    <h3 class="text-lg font-bold text-gray-900">Tags</h3>
                 </div>
-                <div class="space-y-2">
-                    <?php if (!empty($categories)): ?>
-                        <?php foreach ($categories as $cat): ?>
-                            <a href="/category/?slug=<?php echo htmlspecialchars($cat['categories_id']); ?>"
-                                class="block px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded transition-colors <?php echo $cat['categories_id'] === $categorySlug ? 'bg-red-50 text-red-600 font-semibold' : ''; ?>">
-                                <?php echo htmlspecialchars($cat['name']); ?>
+                <div class="space-y-2 max-h-64 overflow-y-auto">
+                    <?php if (!empty($tags)): ?>
+                        <?php foreach ($tags as $t): ?>
+                            <a href="/tags?slug=<?php echo htmlspecialchars($t['tags_id']); ?>"
+                                class="block px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded transition-colors <?php echo $t['tags_id'] === $tagSlug ? 'bg-red-50 text-red-600 font-semibold' : ''; ?>">
+                                <?php echo htmlspecialchars($t['name']); ?>
                             </a>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p class="text-sm text-gray-500 px-3 py-2">Belum ada kategori</p>
+                        <p class="text-sm text-gray-500 px-3 py-2">Belum ada tags</p>
                     <?php endif; ?>
                 </div>
             </div>

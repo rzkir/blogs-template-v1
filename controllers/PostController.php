@@ -122,7 +122,8 @@ class PostController
         string $status,
         ?int $categoriesId,
         int $userId,
-        array $tagNames = []
+        array $tagNames = [],
+        int $isFeatured = 0
     ): int {
         if (empty($title)) {
             throw new Exception('Judul post wajib diisi.');
@@ -143,13 +144,13 @@ class PostController
         }
 
         $stmt = $this->db->prepare("
-            INSERT INTO `posts` (title, slug, description, content, image, status, categories_id, user_id) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO `posts` (title, slug, description, content, image, status, is_featured, categories_id, user_id) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         if (!$stmt) {
             throw new Exception('Gagal menyiapkan query: ' . $this->db->error);
         }
-        $stmt->bind_param('ssssssii', $title, $slug, $description, $content, $image, $status, $categoriesId, $userId);
+        $stmt->bind_param('ssssssiii', $title, $slug, $description, $content, $image, $status, $isFeatured, $categoriesId, $userId);
 
         if (!$stmt->execute()) {
             $error = $stmt->error;
@@ -180,7 +181,8 @@ class PostController
         string $image,
         string $status,
         ?int $categoriesId,
-        array $tagNames = []
+        array $tagNames = [],
+        int $isFeatured = 0
     ): bool {
         if (empty($title)) {
             throw new Exception('Judul post wajib diisi.');
@@ -208,13 +210,13 @@ class PostController
 
         $stmt = $this->db->prepare("
             UPDATE `posts` 
-            SET title = ?, slug = ?, description = ?, content = ?, image = ?, status = ?, categories_id = ? 
+            SET title = ?, slug = ?, description = ?, content = ?, image = ?, status = ?, is_featured = ?, categories_id = ? 
             WHERE id = ?
         ");
         if (!$stmt) {
             throw new Exception('Gagal menyiapkan query: ' . $this->db->error);
         }
-        $stmt->bind_param('ssssssii', $title, $slug, $description, $content, $image, $status, $categoriesId, $id);
+        $stmt->bind_param('ssssssiii', $title, $slug, $description, $content, $image, $status, $isFeatured, $categoriesId, $id);
 
         if (!$stmt->execute()) {
             $error = $stmt->error;
@@ -260,18 +262,36 @@ class PostController
     }
 
     /**
-     * Get post by slug
+     * Get post by slug with category, tags, and user information
      */
     public function getBySlug(string $slug): ?array
     {
-        $stmt = $this->db->prepare("SELECT * FROM `posts` WHERE slug = ?");
+        $stmt = $this->db->prepare("
+            SELECT 
+                p.*,
+                c.name as category_name,
+                c.categories_id as category_slug,
+                ac.fullname,
+                ac.email
+            FROM `posts` p
+            LEFT JOIN `categories` c ON p.categories_id = c.id
+            LEFT JOIN `accounts` ac ON p.user_id = ac.id
+            WHERE p.slug = ?
+        ");
         $stmt->bind_param('s', $slug);
         $stmt->execute();
         $result = $stmt->get_result();
         $post = $result->fetch_assoc();
         $stmt->close();
 
-        return $post ?: null;
+        if (!$post) {
+            return null;
+        }
+
+        // Get tags for this post
+        $post['tags'] = $this->getTagsByPostId($post['id']);
+
+        return $post;
     }
 
     /**
@@ -299,6 +319,105 @@ class PostController
             ORDER BY p.created_at DESC
         ");
         $stmt->bind_param('s', $categorySlug);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            // Parse tags
+            $row['tags'] = [];
+            if (!empty($row['tag_ids']) && !empty($row['tag_names'])) {
+                $tagIds = explode(',', $row['tag_ids']);
+                $tagNames = explode(',', $row['tag_names']);
+                for ($i = 0; $i < count($tagIds); $i++) {
+                    $row['tags'][] = [
+                        'id' => $tagIds[$i],
+                        'name' => $tagNames[$i] ?? ''
+                    ];
+                }
+            }
+            unset($row['tag_ids'], $row['tag_names']);
+            $posts[] = $row;
+        }
+        $stmt->close();
+        return $posts;
+    }
+
+    /**
+     * Get posts by tag slug
+     */
+    public function getByTagSlug(string $tagSlug): array
+    {
+        $posts = [];
+        $stmt = $this->db->prepare("
+            SELECT 
+                p.*,
+                c.name as category_name,
+                c.categories_id as category_slug,
+                ac.fullname,
+                ac.email,
+                GROUP_CONCAT(DISTINCT t2.id) as tag_ids,
+                GROUP_CONCAT(DISTINCT t2.name) as tag_names
+            FROM `posts` p
+            LEFT JOIN `categories` c ON p.categories_id = c.id
+            LEFT JOIN `accounts` ac ON p.user_id = ac.id
+            INNER JOIN `post_tags` pt ON p.id = pt.post_id
+            INNER JOIN `tags` t ON pt.tag_id = t.id AND t.tags_id = ?
+            LEFT JOIN `post_tags` pt2 ON p.id = pt2.post_id
+            LEFT JOIN `tags` t2 ON pt2.tag_id = t2.id
+            WHERE p.status = 'published'
+            GROUP BY p.id
+            ORDER BY p.created_at DESC
+        ");
+        $stmt->bind_param('s', $tagSlug);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            // Parse tags
+            $row['tags'] = [];
+            if (!empty($row['tag_ids']) && !empty($row['tag_names'])) {
+                $tagIds = explode(',', $row['tag_ids']);
+                $tagNames = explode(',', $row['tag_names']);
+                for ($i = 0; $i < count($tagIds); $i++) {
+                    $row['tags'][] = [
+                        'id' => $tagIds[$i],
+                        'name' => $tagNames[$i] ?? ''
+                    ];
+                }
+            }
+            unset($row['tag_ids'], $row['tag_names']);
+            $posts[] = $row;
+        }
+        $stmt->close();
+        return $posts;
+    }
+
+    /**
+     * Search posts by keyword (searches in title, description, and content)
+     */
+    public function search(string $keyword): array
+    {
+        $posts = [];
+        $searchTerm = '%' . $keyword . '%';
+
+        $stmt = $this->db->prepare("
+            SELECT 
+                p.*,
+                c.name as category_name,
+                c.categories_id as category_slug,
+                ac.fullname,
+                ac.email,
+                GROUP_CONCAT(DISTINCT t.id) as tag_ids,
+                GROUP_CONCAT(DISTINCT t.name) as tag_names
+            FROM `posts` p
+            LEFT JOIN `categories` c ON p.categories_id = c.id
+            LEFT JOIN `accounts` ac ON p.user_id = ac.id
+            LEFT JOIN `post_tags` pt ON p.id = pt.post_id
+            LEFT JOIN `tags` t ON pt.tag_id = t.id
+            WHERE p.status = 'published' 
+                AND (p.title LIKE ? OR p.description LIKE ? OR p.content LIKE ?)
+            GROUP BY p.id
+            ORDER BY p.created_at DESC
+        ");
+        $stmt->bind_param('sss', $searchTerm, $searchTerm, $searchTerm);
         $stmt->execute();
         $result = $stmt->get_result();
         while ($row = $result->fetch_assoc()) {
@@ -422,5 +541,101 @@ class PostController
         $result = $stmt->execute();
         $stmt->close();
         return $result;
+    }
+
+    /**
+     * Get popular posts (ordered by views)
+     */
+    public function getPopular(int $limit = 5): array
+    {
+        $posts = [];
+        $stmt = $this->db->prepare("
+            SELECT 
+                p.*,
+                c.name as category_name,
+                c.categories_id as category_slug,
+                ac.fullname,
+                ac.email,
+                GROUP_CONCAT(DISTINCT t.id) as tag_ids,
+                GROUP_CONCAT(DISTINCT t.name) as tag_names
+            FROM `posts` p
+            LEFT JOIN `categories` c ON p.categories_id = c.id
+            LEFT JOIN `accounts` ac ON p.user_id = ac.id
+            LEFT JOIN `post_tags` pt ON p.id = pt.post_id
+            LEFT JOIN `tags` t ON pt.tag_id = t.id
+            WHERE p.status = 'published'
+            GROUP BY p.id
+            ORDER BY p.views DESC, p.created_at DESC
+            LIMIT ?
+        ");
+        $stmt->bind_param('i', $limit);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            // Parse tags
+            $row['tags'] = [];
+            if (!empty($row['tag_ids']) && !empty($row['tag_names'])) {
+                $tagIds = explode(',', $row['tag_ids']);
+                $tagNames = explode(',', $row['tag_names']);
+                for ($i = 0; $i < count($tagIds); $i++) {
+                    $row['tags'][] = [
+                        'id' => $tagIds[$i],
+                        'name' => $tagNames[$i] ?? ''
+                    ];
+                }
+            }
+            unset($row['tag_ids'], $row['tag_names']);
+            $posts[] = $row;
+        }
+        $stmt->close();
+        return $posts;
+    }
+
+    /**
+     * Get featured posts (spotlight)
+     */
+    public function getFeatured(int $limit = 5): array
+    {
+        $posts = [];
+        $stmt = $this->db->prepare("
+            SELECT 
+                p.*,
+                c.name as category_name,
+                c.categories_id as category_slug,
+                ac.fullname,
+                ac.email,
+                GROUP_CONCAT(DISTINCT t.id) as tag_ids,
+                GROUP_CONCAT(DISTINCT t.name) as tag_names
+            FROM `posts` p
+            LEFT JOIN `categories` c ON p.categories_id = c.id
+            LEFT JOIN `accounts` ac ON p.user_id = ac.id
+            LEFT JOIN `post_tags` pt ON p.id = pt.post_id
+            LEFT JOIN `tags` t ON pt.tag_id = t.id
+            WHERE p.status = 'published' AND p.is_featured = 1
+            GROUP BY p.id
+            ORDER BY p.created_at DESC
+            LIMIT ?
+        ");
+        $stmt->bind_param('i', $limit);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            // Parse tags
+            $row['tags'] = [];
+            if (!empty($row['tag_ids']) && !empty($row['tag_names'])) {
+                $tagIds = explode(',', $row['tag_ids']);
+                $tagNames = explode(',', $row['tag_names']);
+                for ($i = 0; $i < count($tagIds); $i++) {
+                    $row['tags'][] = [
+                        'id' => $tagIds[$i],
+                        'name' => $tagNames[$i] ?? ''
+                    ];
+                }
+            }
+            unset($row['tag_ids'], $row['tag_names']);
+            $posts[] = $row;
+        }
+        $stmt->close();
+        return $posts;
     }
 }

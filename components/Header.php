@@ -65,11 +65,15 @@ $categories = $categoriesController->getAll();
                     </div>
                 </div>
                 <div class="hidden md:flex items-center gap-4 flex-1 max-w-md mx-8">
-                    <div class="relative flex-1">
-                        <input type="text" placeholder="Cari berita..."
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    </div>
+                    <form action="/search" method="GET" class="relative flex-1">
+                        <input type="text"
+                            name="q"
+                            placeholder="Cari berita..."
+                            class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-600">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
                 </div>
                 <div class="flex items-center gap-3">
                     <button class="md:hidden p-2 hover:bg-gray-100 rounded">
@@ -81,6 +85,19 @@ $categories = $categoriesController->getAll();
                 </div>
             </div>
 
+            <!-- Mobile Search -->
+            <div id="mobileSearch" class="hidden md:hidden px-4 py-3 border-b border-gray-200">
+                <form action="/search" method="GET" class="relative">
+                    <input type="text"
+                        name="q"
+                        placeholder="Cari berita..."
+                        class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-600">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+
             <!-- Navigation Menu -->
             <nav class="hidden md:block">
                 <div class="flex items-center gap-1 overflow-x-auto">
@@ -89,7 +106,7 @@ $categories = $categoriesController->getAll();
                     </a>
                     <?php if (!empty($categories)): ?>
                         <?php foreach ($categories as $category): ?>
-                            <a href="/category/index.php?category=<?php echo htmlspecialchars($category['categories_id']); ?>"
+                            <a href="/category/?slug=<?php echo htmlspecialchars($category['categories_id']); ?>"
                                 class="px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors">
                                 <?php echo htmlspecialchars($category['name']); ?>
                             </a>
@@ -106,7 +123,7 @@ $categories = $categoriesController->getAll();
                     </a>
                     <?php if (!empty($categories)): ?>
                         <?php foreach ($categories as $category): ?>
-                            <a href="/category/index.php?category=<?php echo htmlspecialchars($category['categories_id']); ?>"
+                            <a href="/category/?slug=<?php echo htmlspecialchars($category['categories_id']); ?>"
                                 class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 rounded transition-colors">
                                 <?php echo htmlspecialchars($category['name']); ?>
                             </a>
@@ -128,3 +145,42 @@ $categories = $categoriesController->getAll();
             </div>
         </div>
     </header>
+
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                // Hide search when menu is opened
+                const mobileSearch = document.getElementById('mobileSearch');
+                if (mobileSearch && !mobileMenu.classList.contains('hidden')) {
+                    mobileSearch.classList.add('hidden');
+                }
+            });
+        }
+
+        // Mobile Search Toggle
+        const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+        const mobileSearch = document.getElementById('mobileSearch');
+
+        if (mobileSearchBtn && mobileSearch) {
+            mobileSearchBtn.addEventListener('click', () => {
+                mobileSearch.classList.toggle('hidden');
+                // Hide menu when search is opened
+                const mobileMenu = document.getElementById('mobileMenu');
+                if (mobileMenu && !mobileSearch.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+                // Focus on search input when opened
+                if (!mobileSearch.classList.contains('hidden')) {
+                    const searchInput = mobileSearch.querySelector('input[name="q"]');
+                    if (searchInput) {
+                        searchInput.focus();
+                    }
+                }
+            });
+        }
+    </script>

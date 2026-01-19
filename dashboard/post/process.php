@@ -95,6 +95,7 @@ try {
             $content = trim($_POST['content'] ?? '');
             $status = $_POST['status'] ?? 'draft';
             $categoriesId = !empty($_POST['categories_id']) ? (int)$_POST['categories_id'] : null;
+            $isFeatured = isset($_POST['is_featured']) ? 1 : 0;
 
             // Handle tags as JSON array string
             $tagsJson = $_POST['tags'] ?? '[]';
@@ -145,7 +146,8 @@ try {
                 $status,
                 $categoriesId,
                 $userId,
-                $tags
+                $tags,
+                $isFeatured
             );
 
             $authController->log($userId, 'post_create', 'Post baru dibuat: ' . $title);
@@ -161,6 +163,7 @@ try {
             $content = trim($_POST['content'] ?? '');
             $status = $_POST['status'] ?? 'draft';
             $categoriesId = !empty($_POST['categories_id']) ? (int)$_POST['categories_id'] : null;
+            $isFeatured = isset($_POST['is_featured']) ? 1 : 0;
 
             // Handle tags as JSON array string
             $tagsJson = $_POST['tags'] ?? '[]';
@@ -223,7 +226,8 @@ try {
                 $image,
                 $status,
                 $categoriesId,
-                $tags
+                $tags,
+                $isFeatured
             );
 
             $authController->log($userId, 'post_update', 'Post diupdate: ' . $title . ' (ID: ' . $id . ')');

@@ -255,6 +255,20 @@ include __DIR__ . '/../header.php';
                         </select>
                     </div>
 
+                    <!-- Featured/Sorotan Field -->
+                    <div>
+                        <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl">
+                            <input type="checkbox" id="is_featured" name="is_featured" value="1"
+                                <?php echo (!empty($post['is_featured']) && $post['is_featured'] == 1) ? 'checked' : ''; ?>
+                                class="w-5 h-5 text-yellow-600 bg-white border-yellow-300 rounded focus:ring-yellow-500 focus:ring-2 cursor-pointer">
+                            <label for="is_featured" class="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
+                                <i class="fas fa-star text-yellow-500"></i>
+                                Tandai sebagai Sorotan (Featured)
+                            </label>
+                        </div>
+                        <p class="mt-2 text-xs text-slate-500">Post yang ditandai sebagai sorotan akan ditampilkan di section khusus di halaman utama.</p>
+                    </div>
+
                     <!-- Views Info -->
                     <div class="bg-slate-50 rounded-xl p-4">
                         <div class="flex items-center gap-2 text-sm text-slate-600">
