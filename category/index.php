@@ -1,27 +1,57 @@
 <?php
 session_start();
-require_once __DIR__ . '/config/db.php';
-require_once __DIR__ . '/controllers/PostController.php';
-require_once __DIR__ . '/controllers/CategoriesController.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../controllers/PostController.php';
+require_once __DIR__ . '/../controllers/CategoriesController.php';
 
 $controller = new PostController($db);
 $categoriesController = new CategoriesController($db);
 
-// Get all posts and filter only published ones
-$allPosts = $controller->getAll();
-$posts = array_filter($allPosts, function ($post) {
-    return $post['status'] === 'published';
-});
+// Get category slug from URL
+$categorySlug = $_GET['category'] ?? '';
+
+if (empty($categorySlug)) {
+    // If no category specified, redirect to home
+    header('Location: /');
+    exit;
+}
+
+// Get category information
+$category = $categoriesController->getBySlug($categorySlug);
+
+if (!$category) {
+    // Category not found, redirect to home
+    header('Location: /');
+    exit;
+}
+
+// Get posts by category
+$posts = $controller->getByCategorySlug($categorySlug);
 
 // Get all categories for sidebar
 $categories = $categoriesController->getAll();
 
-$pageTitle = 'Blog - Beranda';
-include __DIR__ . '/components/Header.php';
+$pageTitle = $category['name'] . ' - Blog News';
+include __DIR__ . '/../components/Header.php';
 ?>
 
 <!-- Main Content -->
 <main class="container mx-auto px-4 py-6">
+    <!-- Category Header -->
+    <div class="mb-6">
+        <div class="flex items-center gap-2 mb-2">
+            <a href="/" class="text-gray-500 hover:text-red-600 transition-colors">
+                <i class="fas fa-home"></i> Beranda
+            </a>
+            <span class="text-gray-400">/</span>
+            <span class="text-gray-700 font-medium"><?php echo htmlspecialchars($category['name']); ?></span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2"><?php echo htmlspecialchars($category['name']); ?></h1>
+        <p class="text-gray-600">
+            <?php echo count($posts); ?> artikel ditemukan
+        </p>
+    </div>
+
     <div class="flex flex-col lg:flex-row gap-6">
         <!-- Main Content Area -->
         <div class="flex-1">
@@ -115,7 +145,7 @@ include __DIR__ . '/components/Header.php';
             <div class="mb-6">
                 <div class="flex items-center gap-2 mb-4">
                     <div class="h-1 w-12 bg-red-600"></div>
-                    <h2 class="text-xl font-bold text-gray-900">Berita Terkini</h2>
+                    <h2 class="text-xl font-bold text-gray-900">Berita <?php echo htmlspecialchars($category['name']); ?></h2>
                 </div>
 
                 <?php if (empty($posts)): ?>
@@ -124,7 +154,10 @@ include __DIR__ . '/components/Header.php';
                             <i class="fas fa-newspaper text-4xl text-gray-400"></i>
                         </div>
                         <h3 class="text-xl font-bold text-gray-700 mb-2">Belum Ada Berita</h3>
-                        <p class="text-gray-500">Belum ada artikel yang dipublikasikan saat ini.</p>
+                        <p class="text-gray-500">Belum ada artikel dalam kategori <?php echo htmlspecialchars($category['name']); ?>.</p>
+                        <a href="/" class="inline-block mt-4 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            Kembali ke Beranda
+                        </a>
                     </div>
                 <?php else:
                     $gridPosts = array_slice($posts, 4);
@@ -192,7 +225,8 @@ include __DIR__ . '/components/Header.php';
                 <div class="space-y-3">
                     <?php
                     $trendingPosts = array_slice($posts, 0, 5);
-                    foreach ($trendingPosts as $index => $post):
+                    if (!empty($trendingPosts)):
+                        foreach ($trendingPosts as $index => $post):
                     ?>
                         <a href="/post/<?php echo htmlspecialchars($post['slug']); ?>" class="flex gap-3 group">
                             <span class="flex-shrink-0 w-6 h-6 bg-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
@@ -202,7 +236,12 @@ include __DIR__ . '/components/Header.php';
                                 <?php echo htmlspecialchars($post['title']); ?>
                             </span>
                         </a>
-                    <?php endforeach; ?>
+                    <?php
+                        endforeach;
+                    else:
+                    ?>
+                        <p class="text-sm text-gray-500 px-3 py-2">Belum ada artikel trending</p>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -214,10 +253,10 @@ include __DIR__ . '/components/Header.php';
                 </div>
                 <div class="space-y-2">
                     <?php if (!empty($categories)): ?>
-                        <?php foreach ($categories as $category): ?>
-                            <a href="/category/index.php?category=<?php echo htmlspecialchars($category['categories_id']); ?>"
-                                class="block px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded transition-colors">
-                                <?php echo htmlspecialchars($category['name']); ?>
+                        <?php foreach ($categories as $cat): ?>
+                            <a href="/category/index.php?category=<?php echo htmlspecialchars($cat['categories_id']); ?>" 
+                               class="block px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded transition-colors <?php echo $cat['categories_id'] === $categorySlug ? 'bg-red-50 text-red-600 font-semibold' : ''; ?>">
+                                <?php echo htmlspecialchars($cat['name']); ?>
                             </a>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -229,4 +268,4 @@ include __DIR__ . '/components/Header.php';
     </div>
 </main>
 
-<?php include __DIR__ . '/components/Footer.php'; ?>
+<?php include __DIR__ . '/../components/Footer.php'; ?>

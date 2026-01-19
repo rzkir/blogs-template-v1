@@ -28,12 +28,50 @@
 }
 
 .container {
-    max-width: 100vw;
+    max-width: 1200px;
     margin: 0 auto;
+}
 
-    @media only screen and (min-width: 1500px) {
-        max-width: 1500px;
-    }
+/* Kompas.com Style Enhancements */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Smooth transitions */
+* {
+    transition-property: color, background-color, border-color, transform, box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* News card hover effects */
+article:hover {
+    transform: translateY(-2px);
+}
+
+/* Navigation scroll */
+nav {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+nav::-webkit-scrollbar {
+    display: none;
 }
 
 #profile-dropdown-menu {
@@ -59,7 +97,95 @@
     height: auto;
     display: block;
     border-radius: 0.5rem;
-}
-.ql-editor img {
     margin: 0.5rem 0;
+    object-fit: contain;
+}
+
+/* Pastikan gambar di Quill editor ditampilkan */
+.ql-editor img {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.ql-editor img[src] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Pastikan gambar yang di-embed Quill ditampilkan */
+.ql-editor .ql-image {
+    display: inline-block;
+    max-width: 100%;
+}
+
+.ql-editor .ql-image img {
+    display: block !important;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Reduce spacing in Quill editor */
+.ql-editor {
+    padding: 12px 15px !important;
+    line-height: 1.5 !important;
+    font-size: 16px;
+}
+
+/* Reduce spacing between paragraphs */
+.ql-editor p {
+    margin: 0.5em 0 !important;
+}
+
+/* Reduce spacing for headings */
+.ql-editor h1 {
+    margin: 0.8em 0 0.5em 0 !important;
+    line-height: 1.3 !important;
+}
+
+.ql-editor h2 {
+    margin: 0.7em 0 0.4em 0 !important;
+    line-height: 1.3 !important;
+}
+
+.ql-editor h3 {
+    margin: 0.6em 0 0.4em 0 !important;
+    line-height: 1.3 !important;
+}
+
+.ql-editor h4,
+.ql-editor h5,
+.ql-editor h6 {
+    margin: 0.5em 0 0.3em 0 !important;
+    line-height: 1.3 !important;
+}
+
+/* Reduce spacing for lists */
+.ql-editor ul,
+.ql-editor ol {
+    margin: 0.5em 0 !important;
+    padding-left: 1.5em !important;
+}
+
+.ql-editor li {
+    margin: 0.2em 0 !important;
+    line-height: 1.5 !important;
+}
+
+/* Reduce spacing for blockquotes */
+.ql-editor blockquote {
+    margin: 0.5em 0 !important;
+    padding: 0.5em 1em !important;
+}
+
+/* Reduce spacing for code blocks */
+.ql-editor pre {
+    margin: 0.5em 0 !important;
+    padding: 0.5em !important;
+}
+
+/* Reduce spacing for images */
+.ql-editor img {
+    margin: 0.5em 0 !important;
 }

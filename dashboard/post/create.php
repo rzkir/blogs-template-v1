@@ -9,15 +9,12 @@ if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? '') !== 'admin') 
 
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../controllers/CategoriesController.php';
-require_once __DIR__ . '/../../controllers/TagsController.php';
 
 $user = $_SESSION['user'];
 $categoriesController = new CategoriesController($db);
-$tagsController = new TagsController($db);
 
-// Get all categories and tags
+// Get all categories
 $categories = $categoriesController->getAll();
-$tags = $tagsController->getAll();
 
 // Helper function to convert title to slug
 function titleToSlug($title)
@@ -43,7 +40,7 @@ include __DIR__ . '/../header.php';
 
     <!-- Main Content -->
     <main class="flex-1 lg:ml-64 pt-4 lg:pt-6 p-4 sm:p-6 min-h-screen relative z-10">
-        <div class="container mx-auto animate-fade-in max-w-4xl">
+        <div class="container mx-auto animate-fade-in">
             <!-- Page Header -->
             <div class="mb-6 sm:mb-8">
                 <div class="flex items-center justify-between mb-2">
@@ -166,25 +163,24 @@ include __DIR__ . '/../header.php';
 
                     <!-- Tags Field -->
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">
-                            Tags
-                        </label>
-                        <div class="border border-slate-300 rounded-xl p-4 max-h-60 overflow-y-auto">
-                            <?php if (empty($tags)): ?>
-                                <p class="text-sm text-slate-500 italic">Belum ada tags. Buat tags terlebih dahulu.</p>
-                            <?php else: ?>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    <?php foreach ($tags as $tag): ?>
-                                        <label class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg cursor-pointer">
-                                            <input type="checkbox" name="tags[]" value="<?php echo $tag['id']; ?>"
-                                                class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
-                                            <span class="text-sm text-slate-700"><?php echo htmlspecialchars($tag['name']); ?></span>
-                                        </label>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php endif; ?>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-sm font-semibold text-slate-700">
+                                Tags
+                            </label>
+                            <button type="button" id="aiGenerateTags"
+                                class="text-xs px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all flex items-center gap-1.5 shadow-sm">
+                                <i class="fas fa-magic"></i>
+                                <span>AI Generate</span>
+                            </button>
                         </div>
-                        <p class="mt-1 text-xs text-slate-500">Pilih satu atau lebih tags untuk post ini.</p>
+                        <div class="border border-slate-300 rounded-xl p-3 min-h-[60px] focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-500/20 transition-all">
+                            <div id="tagsContainer" class="flex flex-wrap gap-2 mb-2"></div>
+                            <input type="text" id="tagInput"
+                                class="w-full px-2 py-1 border-0 outline-none text-sm"
+                                placeholder="Ketik tag dan tekan Enter (contoh: programming, php, tutorial)">
+                            <input type="hidden" id="tagsArray" name="tags" value="">
+                        </div>
+                        <p class="mt-1 text-xs text-slate-500">Masukkan tags sebagai array, pisahkan dengan koma atau tekan Enter untuk setiap tag.</p>
                     </div>
 
                     <!-- Status Field -->

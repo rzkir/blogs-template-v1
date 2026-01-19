@@ -95,7 +95,17 @@ try {
             $content = trim($_POST['content'] ?? '');
             $status = $_POST['status'] ?? 'draft';
             $categoriesId = !empty($_POST['categories_id']) ? (int)$_POST['categories_id'] : null;
-            $tags = isset($_POST['tags']) && is_array($_POST['tags']) ? $_POST['tags'] : [];
+
+            // Handle tags as JSON array string
+            $tagsJson = $_POST['tags'] ?? '[]';
+            $tags = json_decode($tagsJson, true);
+            if (!is_array($tags)) {
+                $tags = [];
+            }
+            // Clean and filter tags
+            $tags = array_filter(array_map('trim', $tags), function ($tag) {
+                return !empty($tag);
+            });
 
             if (empty($title)) {
                 throw new Exception('Judul post wajib diisi.');
@@ -151,7 +161,18 @@ try {
             $content = trim($_POST['content'] ?? '');
             $status = $_POST['status'] ?? 'draft';
             $categoriesId = !empty($_POST['categories_id']) ? (int)$_POST['categories_id'] : null;
-            $tags = isset($_POST['tags']) && is_array($_POST['tags']) ? $_POST['tags'] : [];
+
+            // Handle tags as JSON array string
+            $tagsJson = $_POST['tags'] ?? '[]';
+            $tags = json_decode($tagsJson, true);
+            if (!is_array($tags)) {
+                $tags = [];
+            }
+            // Clean and filter tags
+            $tags = array_filter(array_map('trim', $tags), function ($tag) {
+                return !empty($tag);
+            });
+
             $existingImage = $_POST['existing_image'] ?? null;
 
             if ($id <= 0) {

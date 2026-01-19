@@ -122,7 +122,7 @@ class PostController
         string $status,
         ?int $categoriesId,
         int $userId,
-        array $tagIds = []
+        array $tagNames = []
     ): int {
         if (empty($title)) {
             throw new Exception('Judul post wajib diisi.');
@@ -161,8 +161,8 @@ class PostController
         $stmt->close();
 
         // Set tags if provided
-        if (!empty($tagIds)) {
-            $this->setPostTags($newId, $tagIds);
+        if (!empty($tagNames)) {
+            $this->setPostTagsByName($newId, $tagNames, $userId);
         }
 
         return $newId;
@@ -180,7 +180,7 @@ class PostController
         string $image,
         string $status,
         ?int $categoriesId,
-        array $tagIds = []
+        array $tagNames = []
     ): bool {
         if (empty($title)) {
             throw new Exception('Judul post wajib diisi.');
@@ -226,7 +226,15 @@ class PostController
         $stmt->close();
 
         // Update tags
-        $this->setPostTags($id, $tagIds);
+        // Get userId from existing post
+        $existing = $this->getById($id);
+        $userId = $existing['user_id'] ?? 0;
+        if (!empty($tagNames) && $userId > 0) {
+            $this->setPostTagsByName($id, $tagNames, $userId);
+        } else {
+            // Clear tags if empty
+            $this->setPostTags($id, []);
+        }
 
         return $success;
     }
@@ -267,7 +275,54 @@ class PostController
     }
 
     /**
-     * Set tags for a post (replaces existing tags)
+     * Get posts by category ID (using categories_id slug)
+     */
+    public function getByCategorySlug(string $categorySlug): array
+    {
+        $posts = [];
+        $stmt = $this->db->prepare("
+            SELECT 
+                p.*,
+                c.name as category_name,
+                c.categories_id as category_slug,
+                ac.fullname,
+                ac.email,
+                GROUP_CONCAT(DISTINCT t.id) as tag_ids,
+                GROUP_CONCAT(DISTINCT t.name) as tag_names
+            FROM `posts` p
+            INNER JOIN `categories` c ON p.categories_id = c.id
+            LEFT JOIN `accounts` ac ON p.user_id = ac.id
+            LEFT JOIN `post_tags` pt ON p.id = pt.post_id
+            LEFT JOIN `tags` t ON pt.tag_id = t.id
+            WHERE c.categories_id = ? AND p.status = 'published'
+            GROUP BY p.id
+            ORDER BY p.created_at DESC
+        ");
+        $stmt->bind_param('s', $categorySlug);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            // Parse tags
+            $row['tags'] = [];
+            if (!empty($row['tag_ids']) && !empty($row['tag_names'])) {
+                $tagIds = explode(',', $row['tag_ids']);
+                $tagNames = explode(',', $row['tag_names']);
+                for ($i = 0; $i < count($tagIds); $i++) {
+                    $row['tags'][] = [
+                        'id' => $tagIds[$i],
+                        'name' => $tagNames[$i] ?? ''
+                    ];
+                }
+            }
+            unset($row['tag_ids'], $row['tag_names']);
+            $posts[] = $row;
+        }
+        $stmt->close();
+        return $posts;
+    }
+
+    /**
+     * Set tags for a post (replaces existing tags) - by tag IDs
      */
     private function setPostTags(int $postId, array $tagIds): void
     {
@@ -286,6 +341,72 @@ class PostController
                     $stmt->bind_param('ii', $postId, $tagId);
                     $stmt->execute();
                 }
+            }
+            $stmt->close();
+        }
+    }
+
+    /**
+     * Set tags for a post by tag names (creates tags if they don't exist)
+     */
+    private function setPostTagsByName(int $postId, array $tagNames, int $userId): void
+    {
+        // Delete existing tags
+        $stmt = $this->db->prepare("DELETE FROM `post_tags` WHERE post_id = ?");
+        $stmt->bind_param('i', $postId);
+        $stmt->execute();
+        $stmt->close();
+
+        if (empty($tagNames)) {
+            return;
+        }
+
+        // Helper function to convert name to slug
+        $nameToSlug = function ($name) {
+            $slug = strtolower($name);
+            $slug = str_replace(' ', '-', $slug);
+            $slug = preg_replace('/[^a-z0-9\-]/', '', $slug);
+            $slug = preg_replace('/-+/', '-', $slug);
+            return trim($slug, '-');
+        };
+
+        // Get or create tags
+        $tagIds = [];
+        foreach ($tagNames as $tagName) {
+            $tagName = trim($tagName);
+            if (empty($tagName)) {
+                continue;
+            }
+
+            // Check if tag exists by name
+            $stmt = $this->db->prepare("SELECT id FROM `tags` WHERE name = ? LIMIT 1");
+            $stmt->bind_param('s', $tagName);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $tag = $result->fetch_assoc();
+            $stmt->close();
+
+            if ($tag) {
+                // Tag exists, use its ID
+                $tagIds[] = $tag['id'];
+            } else {
+                // Tag doesn't exist, create it
+                $tagsId = $nameToSlug($tagName);
+                $stmt = $this->db->prepare("INSERT INTO `tags` (name, tags_id, user_id) VALUES (?, ?, ?)");
+                $stmt->bind_param('ssi', $tagName, $tagsId, $userId);
+                if ($stmt->execute()) {
+                    $tagIds[] = $stmt->insert_id;
+                }
+                $stmt->close();
+            }
+        }
+
+        // Link tags to post
+        if (!empty($tagIds)) {
+            $stmt = $this->db->prepare("INSERT INTO `post_tags` (post_id, tag_id) VALUES (?, ?)");
+            foreach ($tagIds as $tagId) {
+                $stmt->bind_param('ii', $postId, $tagId);
+                $stmt->execute();
             }
             $stmt->close();
         }

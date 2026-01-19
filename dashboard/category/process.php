@@ -34,7 +34,30 @@ function nameToSlug($name)
 
 $controller = new CategoriesController($db);
 $authController = new AuthController($db);
-$userId = $_SESSION['user']['id'];
+
+// Validate and get user ID from session
+if (!isset($_SESSION['user']['id'])) {
+    $_SESSION['error'] = 'Session user tidak valid. Silakan login kembali.';
+    header('Location: /login');
+    exit;
+}
+
+$userId = (int)$_SESSION['user']['id'];
+
+// Verify user exists in database
+$stmt = $db->prepare("SELECT id FROM `accounts` WHERE id = ? LIMIT 1");
+$stmt->bind_param('i', $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+$userExists = $result->fetch_assoc();
+$stmt->close();
+
+if (!$userExists) {
+    $_SESSION['error'] = 'User tidak ditemukan di database. Silakan login kembali.';
+    header('Location: /login');
+    exit;
+}
+
 $action = $_POST['action'] ?? '';
 
 try {

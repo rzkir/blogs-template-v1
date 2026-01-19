@@ -41,6 +41,21 @@ class CategoriesController
     }
 
     /**
+     * Get single category by categories_id (slug) with user information
+     */
+    public function getBySlug(string $categoriesId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT c.*, ac.fullname, ac.email FROM `categories` c LEFT JOIN `accounts` ac ON c.user_id = ac.id WHERE c.categories_id = ?");
+        $stmt->bind_param('s', $categoriesId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $category = $result->fetch_assoc();
+        $stmt->close();
+
+        return $category ?: null;
+    }
+
+    /**
      * Create new category
      */
     public function create(string $name, string $categoriesId, int $userId): int
