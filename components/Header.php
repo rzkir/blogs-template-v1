@@ -4,6 +4,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Flash messages (frontend)
+$flashSuccess = $_SESSION['success'] ?? '';
+$flashError   = $_SESSION['error'] ?? '';
+unset($_SESSION['success'], $_SESSION['error']);
+
 // Get categories from database for navigation menu
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../controllers/CategoriesController.php';
@@ -188,6 +193,22 @@ function isActiveLink($path, $categoryId = null)
 </head>
 
 <body class="min-h-screen" style="font-family: 'Inter', sans-serif;">
+    <?php if (!empty($flashSuccess)): ?>
+        <div class="container mx-auto px-4 pt-4">
+            <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                <i class="fas fa-check-circle mr-2"></i><?php echo htmlspecialchars($flashSuccess); ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($flashError)): ?>
+        <div class="container mx-auto px-4 pt-4">
+            <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <i class="fas fa-exclamation-triangle mr-2"></i><?php echo htmlspecialchars($flashError); ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- Breaking News Ticker -->
     <div class="bg-gradient-to-r from-red-600 via-red-600 to-red-700 text-white py-2.5 shadow-sm overflow-hidden">
         <div class="container mx-auto px-4">

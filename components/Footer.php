@@ -68,9 +68,10 @@ if (!isset($footerCategories)) {
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-3 mb-4">Dapatkan update berita terbaru langsung di inbox Anda.</p>
 
                 <!-- Newsletter form -->
-                <form class="footer-newsletter-form mb-6" onsubmit="return false;">
+                <form class="footer-newsletter-form mb-6" action="/berlangganan/process.php" method="POST">
                     <div class="flex gap-2">
-                        <input type="email" placeholder="Alamat email" class="footer-newsletter-input" required>
+                        <input type="hidden" name="nama" value="">
+                        <input type="email" name="email" placeholder="Alamat email" class="footer-newsletter-input" required>
                         <button type="submit" class="footer-newsletter-btn" aria-label="Berlangganan">
                             <i class="fas fa-paper-plane"></i>
                         </button>
@@ -79,17 +80,23 @@ if (!isset($footerCategories)) {
 
                 <!-- Social links -->
                 <div class="flex flex-wrap gap-3">
-                    <a href="/" class="footer-social" aria-label="Facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="/" class="footer-social" aria-label="Twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="/" class="footer-social" aria-label="Instagram">
+                    <a href="https://www.instagram.com/rzkir.20" class="footer-social" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
                         <i class="fab fa-instagram"></i>
                     </a>
-                    <a href="/" class="footer-social" aria-label="YouTube">
-                        <i class="fab fa-youtube"></i>
+                    <a href="https://github.com/rzkir" class="footer-social" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@rizkiramadhan.20" class="footer-social" aria-label="TikTok" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/rizki-ramadhan12" class="footer-social" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://wa.me/6285811668557" class="footer-social" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://www.facebook.com/rizki.ramadhan.419859" class="footer-social" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-facebook-f"></i>
                     </a>
                 </div>
             </div>
@@ -99,7 +106,7 @@ if (!isset($footerCategories)) {
         <div class="footer-bottom">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
                 <p class="text-gray-600 dark:text-gray-400 order-2 md:order-1">
-                    &copy; <?php echo date('Y'); ?> Blog News. All rights reserved.
+                    &copy; 2026 - <?php echo date('Y'); ?> Blog News. All rights reserved.
                 </p>
                 <div class="flex flex-wrap justify-center items-center gap-4 md:gap-6 order-1 md:order-2">
                     <a href="/" class="footer-legal-link">Kebijakan Privasi</a>

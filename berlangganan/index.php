@@ -29,7 +29,7 @@ include __DIR__ . '/../components/Header.php';
         <!-- Form & Benefits -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div class="p-6 md:p-8">
-                <form action="#" method="POST" class="space-y-4" onsubmit="return false;">
+                <form action="/berlangganan/process.php" method="POST" class="space-y-4">
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Alamat Email</label>
                         <input type="email" id="email" name="email" required

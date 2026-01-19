@@ -167,7 +167,7 @@ function renderCard($post, $type = 'default', $index = null)
                     </div>
                 <?php endif; ?>
             </div>
-            <div class="flex-1 min-w-0">
+            <div class="flex-1 min-w-0 space-y-4">
                 <h3 class="text-xs sm:text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors mb-1">
                     <?php echo $title; ?>
                 </h3>
@@ -190,38 +190,36 @@ function renderCard($post, $type = 'default', $index = null)
         </a>
 
     <?php
-    // Main Headline Card (Large Hero)
+    // Main Headline Card (Hero – desain baru: kartu teks di atas gambar)
     elseif ($type === 'headline'):
         $fullname = htmlspecialchars($post['fullname'] ?? 'Admin');
     ?>
-        <a href="/blog/?slug=<?php echo $slug; ?>" class="block group">
-            <div class="relative aspect-ratio-16-9 overflow-hidden">
+        <a href="/blog/?slug=<?php echo $slug; ?>" class="block group headline-hero w-full">
+            <div class="headline-hero__wrap">
                 <?php if ($image): ?>
                     <img src="<?php echo $image; ?>"
                         alt="<?php echo $title; ?>"
-                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        class="headline-hero__img">
                 <?php else: ?>
-                    <div class="w-full h-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
-                        <i class="fas fa-newspaper text-6xl sm:text-8xl text-white/30"></i>
+                    <div class="headline-hero__placeholder">
+                        <i class="fas fa-newspaper"></i>
                     </div>
                 <?php endif; ?>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                    <?php if ($categoryName): ?>
-                        <span class="inline-block px-2 py-1 sm:px-3 sm:py-1 bg-red-600 text-white text-xs font-semibold rounded mb-2 sm:mb-3">
-                            <?php echo $categoryName; ?>
-                        </span>
-                    <?php endif; ?>
-                    <h2 class="text-lg sm:text-2xl lg:text-3xl font-bold text-white mb-1 sm:mb-2 line-clamp-2 group-hover:text-red-200 transition-colors">
-                        <?php echo $title; ?>
-                    </h2>
-                    <p class="text-white/90 text-xs sm:text-sm line-clamp-2 mb-2 sm:mb-0 hidden sm:block">
-                        <?php echo $description ?? ''; ?>
-                    </p>
-                    <div class="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-3 text-white/80 text-xs">
-                        <span class="truncate"><?php echo $date->format('d M Y'); ?></span>
-                        <span class="hidden sm:inline">•</span>
-                        <span class="truncate hidden sm:inline"><?php echo $fullname; ?></span>
+                <div class="headline-hero__shade"></div>
+                <div class="headline-hero__card">
+                    <div class="headline-hero__card-inner">
+                        <?php if ($categoryName): ?>
+                            <span class="headline-hero__tag"><?php echo $categoryName; ?></span>
+                        <?php endif; ?>
+                        <h2 class="headline-hero__title line-clamp-2"><?php echo $title; ?></h2>
+                        <?php if (!empty($description)): ?>
+                            <p class="headline-hero__desc line-clamp-2"><?php echo $description; ?></p>
+                        <?php endif; ?>
+                        <div class="headline-hero__meta">
+                            <span><?php echo $date->format('d M Y'); ?></span>
+                            <span class="headline-hero__meta-dot">·</span>
+                            <span><?php echo $fullname; ?></span>
+                        </div>
                     </div>
                 </div>
             </div>

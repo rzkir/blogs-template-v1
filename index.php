@@ -45,17 +45,14 @@ include __DIR__ . '/components/Header.php';
                 <div class="bg-white rounded-lg shadow-sm mb-6 overflow-hidden">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-4">
                         <!-- Main Headline -->
-                        <div class="lg:col-span-2">
+                        <div class="lg:col-span-2 min-w-0 lg:gap-4 p-4">
                             <?php renderCard($headlinePost, 'headline'); ?>
                         </div>
 
                         <!-- Side Headlines -->
-                        <div class="space-y-3 p-4 lg:p-0 lg:space-y-4">
+                        <div class="flex flex-col justify-between gap-3 lg:gap-4 p-4 lg:py-4 lg:px-0">
                             <?php foreach ($otherPosts as $index => $post): ?>
                                 <?php renderCard($post, 'side'); ?>
-                                <?php if ($index < count($otherPosts) - 1): ?>
-                                    <div class="border-b border-gray-200"></div>
-                                <?php endif; ?>
                             <?php endforeach; ?>
                         </div>
                     </div>

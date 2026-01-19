@@ -3,6 +3,7 @@ session_start();
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../controllers/PostController.php';
 require_once __DIR__ . '/../controllers/TagsController.php';
+require_once __DIR__ . '/../components/Card.php';
 
 $controller = new PostController($db);
 $tagsController = new TagsController($db);
@@ -94,76 +95,15 @@ include __DIR__ . '/../components/Header.php';
                 <div class="bg-white rounded-lg shadow-sm mb-6 overflow-hidden">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-4">
                         <!-- Main Headline -->
-                        <div class="lg:col-span-2">
-                            <a href="/blog/?slug=<?php echo htmlspecialchars($headlinePost['slug']); ?>" class="block group">
-                                <div class="relative h-80 overflow-hidden">
-                                    <?php if (!empty($headlinePost['image'])): ?>
-                                        <img src="<?php echo htmlspecialchars($headlinePost['image']); ?>"
-                                            alt="<?php echo htmlspecialchars($headlinePost['title']); ?>"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                                    <?php else: ?>
-                                        <div class="w-full h-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
-                                            <i class="fas fa-newspaper text-8xl text-white/30"></i>
-                                        </div>
-                                    <?php endif; ?>
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                                    <div class="absolute bottom-0 left-0 right-0 p-6">
-                                        <?php if (!empty($headlinePost['category_name'])): ?>
-                                            <span class="inline-block px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded mb-3">
-                                                <?php echo htmlspecialchars($headlinePost['category_name']); ?>
-                                            </span>
-                                        <?php endif; ?>
-                                        <h2 class="text-2xl lg:text-3xl font-bold text-white mb-2 line-clamp-2 group-hover:text-red-200 transition-colors">
-                                            <?php echo htmlspecialchars($headlinePost['title']); ?>
-                                        </h2>
-                                        <p class="text-white/90 text-sm line-clamp-2">
-                                            <?php echo htmlspecialchars($headlinePost['description'] ?? ''); ?>
-                                        </p>
-                                        <div class="flex items-center gap-3 mt-3 text-white/80 text-xs">
-                                            <span>
-                                                <?php
-                                                $date = new DateTime($headlinePost['created_at']);
-                                                echo $date->format('d M Y, H:i');
-                                                ?>
-                                            </span>
-                                            <span>•</span>
-                                            <span><?php echo htmlspecialchars($headlinePost['fullname'] ?? 'Admin'); ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
+                        <div class="lg:col-span-2 min-w-0 lg:gap-4 p-4">
+                            <?php renderCard($headlinePost, 'headline'); ?>
                         </div>
 
                         <!-- Side Headlines -->
                         <?php if (!empty($otherPosts)): ?>
-                            <div class="space-y-3 p-4 lg:p-0 lg:space-y-4">
+                            <div class="flex flex-col justify-between gap-3 lg:gap-4 p-4 lg:py-4 lg:px-0">
                                 <?php foreach ($otherPosts as $index => $post): ?>
-                                    <a href="/blog/?slug=<?php echo htmlspecialchars($post['slug']); ?>" class="block group">
-                                        <div class="flex gap-2 sm:gap-3">
-                                            <div class="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 overflow-hidden rounded">
-                                                <?php if (!empty($post['image'])): ?>
-                                                    <img src="<?php echo htmlspecialchars($post['image']); ?>"
-                                                        alt="<?php echo htmlspecialchars($post['title']); ?>"
-                                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                                                <?php else: ?>
-                                                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                                        <i class="fas fa-image text-gray-400 text-sm"></i>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <h3 class="text-xs sm:text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors mb-1">
-                                                    <?php echo htmlspecialchars($post['title']); ?>
-                                                </h3>
-                                                <p class="text-xs text-gray-500">
-                                                    <?php
-                                                    $date = new DateTime($post['created_at']);
-                                                    echo $date->format('d M Y');
-                                                    ?>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </a>
+                                    <?php renderCard($post, 'side'); ?>
                                     <?php if ($index < count($otherPosts) - 1): ?>
                                         <div class="border-b border-gray-200"></div>
                                     <?php endif; ?>
@@ -185,50 +125,7 @@ include __DIR__ . '/../components/Header.php';
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <?php foreach ($gridPosts as $post): ?>
-                                <article class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
-                                    <a href="/blog/?slug=<?php echo htmlspecialchars($post['slug']); ?>" class="block">
-                                        <div class="relative h-48 overflow-hidden">
-                                            <?php if (!empty($post['image'])): ?>
-                                                <img src="<?php echo htmlspecialchars($post['image']); ?>"
-                                                    alt="<?php echo htmlspecialchars($post['title']); ?>"
-                                                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                            <?php else: ?>
-                                                <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                                                    <i class="fas fa-newspaper text-5xl text-gray-400"></i>
-                                                </div>
-                                            <?php endif; ?>
-                                            <?php if (!empty($post['category_name'])): ?>
-                                                <div class="absolute top-3 left-3">
-                                                    <span class="px-2 py-1 bg-red-600 text-white text-xs font-semibold rounded">
-                                                        <?php echo htmlspecialchars($post['category_name']); ?>
-                                                    </span>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="p-4">
-                                            <h3 class="text-base font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors">
-                                                <?php echo htmlspecialchars($post['title']); ?>
-                                            </h3>
-                                            <?php if (!empty($post['description'])): ?>
-                                                <p class="text-sm text-gray-600 mb-3 line-clamp-2">
-                                                    <?php echo htmlspecialchars($post['description']); ?>
-                                                </p>
-                                            <?php endif; ?>
-                                            <div class="flex items-center justify-between text-xs text-gray-500">
-                                                <span>
-                                                    <?php
-                                                    $date = new DateTime($post['created_at']);
-                                                    echo $date->format('d M Y');
-                                                    ?>
-                                                </span>
-                                                <span class="flex items-center gap-1">
-                                                    <i class="fas fa-eye"></i>
-                                                    <?php echo number_format($post['views'] ?? 0); ?>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </article>
+                                <?php renderCard($post, 'default'); ?>
                             <?php endforeach; ?>
                         </div>
                     </div>

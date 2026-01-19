@@ -79,7 +79,7 @@ include __DIR__ . '/../components/Header.php';
             <article class="bg-white rounded-lg shadow-sm overflow-hidden">
                 <!-- Category Badge -->
                 <?php if (!empty($post['category_name'])): ?>
-                    <div class="px-4 sm:px-6 pt-4 sm:pt-6">
+                    <div class="px-4 py-4">
                         <a href="/category/?slug=<?php echo htmlspecialchars($post['category_slug']); ?>"
                             class="inline-block px-2.5 py-1 sm:px-3 sm:py-1 bg-red-600 text-white text-xs sm:text-sm font-semibold rounded hover:bg-red-700 transition-colors">
                             <?php echo htmlspecialchars($post['category_name']); ?>
