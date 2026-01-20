@@ -181,6 +181,7 @@ function isActiveLink($path, $categoryId = null)
 
     <!-- Main JavaScript -->
     <script src="/js/main.js" defer></script>
+    <script src="/js/disable.js" defer></script>
 
     <style>
         /* Prevent flash by setting initial colors */

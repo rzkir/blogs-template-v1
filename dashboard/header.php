@@ -39,4 +39,5 @@ unset($_SESSION['success'], $_SESSION['error']);
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="/js/ai-endpoint.js"></script>
     <script src="/js/main.js"></script>
+    <script src="/js/disable.js"></script>
     <script src="/js/toast.js"></script>
