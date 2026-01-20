@@ -68,6 +68,15 @@ body {
     color: var(--text-primary);
 }
 
+/* Header base colors to reduce flash before theme script runs */
+html:not(.dark) header {
+    background-color: #ffffff;
+}
+
+html.dark header {
+    background-color: #111827;
+}
+
 /* Line clamp utilities */
 .line-clamp-2 {
     display: -webkit-box;
@@ -204,6 +213,22 @@ nav::-webkit-scrollbar {
     }
 }
 
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
 /* Gambar di konten (editor Quill & tampilan post) – sumber bebas */
 .ql-editor img,
 .post-content img {
@@ -297,6 +322,66 @@ nav::-webkit-scrollbar {
 .ql-editor pre {
     margin: 0.5em 0 !important;
     padding: 0.5em !important;
+}
+
+/* Blog post content elements */
+.post-content blockquote,
+.post-content pre {
+    position: relative;
+}
+
+.post-content blockquote {
+    border-left: 4px solid #ef4444;
+    background: #fff5f5;
+    padding: 1rem 1.25rem;
+    border-radius: 0.5rem;
+    color: #374151;
+    font-style: italic;
+    margin: 1.5rem 0;
+}
+
+.post-content blockquote::before,
+.post-content pre::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    background: #ef4444;
+    border-radius: 9999px;
+}
+
+.post-content blockquote p {
+    margin: 0;
+}
+
+.post-content pre {
+    background: #0f172a;
+    color: #e5e7eb;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    overflow: auto;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
+}
+
+.post-content pre::before {
+    box-shadow: none;
+}
+
+.post-content code {
+    background: #f3f4f6;
+    color: #111827;
+    padding: 0.15em 0.35em;
+    border-radius: 0.35em;
+    font-size: 0.95em;
+}
+
+.post-content pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
 }
 
 /* Reduce spacing for images */
@@ -1044,6 +1129,51 @@ body.theme-loaded header nav {
 }
 
 
+/* Breadcrumb helper */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.875rem;
+    color: #6b7280;
+    min-width: 0;
+}
+
+.breadcrumb__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.breadcrumb__link:hover {
+    color: #dc2626;
+}
+
+.breadcrumb__divider {
+    color: #9ca3af;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.breadcrumb__current {
+    color: #374151;
+    font-weight: 600;
+    min-width: 0;
+}
+
+.breadcrumb__truncate {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* Mobile Bottom Navigation Spacing */
 @media (max-width: 767px) {
 
@@ -1061,10 +1191,15 @@ body.theme-loaded header nav {
     article .p-4 {
         padding: 0.75rem !important;
     }
+}
 
-    /* Better breadcrumb wrapping */
-    .flex.items-center.gap-2 {
-        flex-wrap: wrap;
+@media (max-width: 640px) {
+    .breadcrumb {
+        gap: 0.35rem;
+    }
+
+    .breadcrumb__truncate {
+        max-width: 160px;
     }
 }
 
@@ -1154,16 +1289,6 @@ img {
 .line-clamp-3 {
     word-break: break-word;
     overflow-wrap: break-word;
-}
-
-/* Improve touch targets for mobile */
-@media (hover: none) and (pointer: coarse) {
-
-    a,
-    button {
-        min-height: 44px;
-        min-width: 44px;
-    }
 }
 
 /* Safe area for devices with notches */

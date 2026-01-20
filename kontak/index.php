@@ -11,11 +11,14 @@ include __DIR__ . '/../components/Header.php';
 <main class="container mx-auto px-4 py-6 md:py-10">
     <div class="max-w-2xl mx-auto">
         <!-- Breadcrumb -->
-        <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
-            <a href="/" class="hover:text-red-600 transition-colors"><i class="fas fa-home"></i> Beranda</a>
-            <span>/</span>
-            <span class="text-gray-700 font-medium">Kontak</span>
-        </div>
+        <nav class="breadcrumb mb-6" aria-label="Breadcrumb">
+            <a href="/" class="breadcrumb__link">
+                <i class="fas fa-home"></i>
+                <span>Beranda</span>
+            </a>
+            <span class="breadcrumb__divider">/</span>
+            <span class="breadcrumb__current">Kontak</span>
+        </nav>
 
         <!-- Header -->
         <div class="text-center mb-10">

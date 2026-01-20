@@ -58,20 +58,25 @@ include __DIR__ . '/../components/Header.php';
 <main class="container mx-auto px-4 py-6">
     <!-- Breadcrumb -->
     <div class="mb-6">
-        <div class="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
-            <a href="/" class="text-gray-500 hover:text-red-600 transition-colors flex items-center gap-1">
-                <i class="fas fa-home"></i> <span class="hidden sm:inline">Beranda</span>
+        <nav class="breadcrumb text-xs sm:text-sm" aria-label="Breadcrumb">
+            <a href="/" class="breadcrumb__link">
+                <i class="fas fa-home"></i>
+                <span class="hidden sm:inline">Beranda</span>
             </a>
             <?php if (!empty($post['category_name'])): ?>
-                <span class="text-gray-400">/</span>
+                <span class="breadcrumb__divider">/</span>
                 <a href="/category/?slug=<?php echo htmlspecialchars($post['category_slug']); ?>"
-                    class="text-gray-500 hover:text-red-600 transition-colors truncate max-w-[150px] sm:max-w-none">
+                    class="breadcrumb__link breadcrumb__truncate"
+                    title="<?php echo htmlspecialchars($post['category_name']); ?>">
                     <?php echo htmlspecialchars($post['category_name']); ?>
                 </a>
             <?php endif; ?>
-            <span class="text-gray-400">/</span>
-            <span class="text-gray-700 truncate flex-1 min-w-0"><?php echo htmlspecialchars($post['title']); ?></span>
-        </div>
+            <span class="breadcrumb__divider">/</span>
+            <span class="breadcrumb__current breadcrumb__truncate"
+                title="<?php echo htmlspecialchars($post['title']); ?>">
+                <?php echo htmlspecialchars($post['title']); ?>
+            </span>
+        </nav>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-6">
@@ -144,7 +149,14 @@ include __DIR__ . '/../components/Header.php';
                 <!-- Content -->
                 <div class="px-4 sm:px-6 pb-6">
                     <div class="prose prose-base sm:prose-lg max-w-none post-content">
-                        <?php echo $post['content']; ?>
+                        <?php
+                        $cleanContent = preg_replace(
+                            '/<p>(\s|&nbsp;|<br\s*\/?>)*<\/p>/i',
+                            '',
+                            $post['content'] ?? ''
+                        );
+                        echo $cleanContent;
+                        ?>
                     </div>
                 </div>
 

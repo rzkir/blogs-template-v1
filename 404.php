@@ -197,22 +197,4 @@ include __DIR__ . '/components/Header.php';
     </div>
 </main>
 
-<style>
-    @keyframes float {
-
-        0%,
-        100% {
-            transform: translateY(0px);
-        }
-
-        50% {
-            transform: translateY(-20px);
-        }
-    }
-
-    .animate-float {
-        animation: float 3s ease-in-out infinite;
-    }
-</style>
-
 <?php include __DIR__ . '/components/Footer.php'; ?>

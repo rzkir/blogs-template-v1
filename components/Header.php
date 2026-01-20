@@ -161,8 +161,7 @@ function isActiveLink($path, $categoryId = null)
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Load Tailwind CSS with error handling -->
-    <script src="https://cdn.tailwindcss.com" onerror="this.onerror=null; this.src='https://cdn.jsdelivr.net/npm/tailwindcss@3.4.0/lib/index.min.js';"></script>
-
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Theme Script - Load BEFORE body to prevent flash -->
     <script>
         (function() {
@@ -183,19 +182,9 @@ function isActiveLink($path, $categoryId = null)
     <script src="/js/main.js" defer></script>
     <script src="/js/disable.js" defer></script>
 
-    <style>
-        /* Prevent flash by setting initial colors */
-        html:not(.dark) header {
-            background-color: #ffffff;
-        }
-
-        html.dark header {
-            background-color: #111827;
-        }
-    </style>
 </head>
 
-<body class="min-h-screen" style="font-family: 'Inter', sans-serif;">
+<body class="min-h-screen">
     <?php if (!empty($flashSuccess)): ?>
         <div class="container mx-auto px-4 pt-4">
             <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
@@ -215,7 +204,7 @@ function isActiveLink($path, $categoryId = null)
     <!-- Breaking News Ticker -->
     <div class="bg-gradient-to-r from-red-600 via-red-600 to-red-700 text-white py-2.5 shadow-sm overflow-hidden">
         <div class="container mx-auto px-4">
-            <div class="flex items-center gap-4">
+            <div class="flex items-center justify-center gap-4">
                 <div class="flex flex-1 items-center gap-2 flex-shrink-0">
                     <i class="fas fa-bolt text-yellow-300 animate-pulse"></i>
                     <span class="font-bold text-sm uppercase tracking-wide">Breaking News</span>
