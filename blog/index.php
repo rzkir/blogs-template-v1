@@ -96,7 +96,15 @@ include __DIR__ . '/../components/Header.php';
                     <!-- Meta Info -->
                     <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 border-b border-gray-200 pb-4">
                         <div class="flex items-center gap-1.5 sm:gap-2">
-                            <i class="fas fa-user-circle text-gray-400"></i>
+                            <?php if (!empty($post['picture'])): ?>
+                                <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-gray-200">
+                                    <img src="<?php echo htmlspecialchars($post['picture']); ?>"
+                                        alt="<?php echo htmlspecialchars($post['fullname'] ?? 'Admin'); ?>"
+                                        class="w-full h-full object-cover">
+                                </div>
+                            <?php else: ?>
+                                <i class="fas fa-user-circle text-gray-400"></i>
+                            <?php endif; ?>
                             <span class="font-medium"><?php echo htmlspecialchars($post['fullname'] ?? 'Admin'); ?></span>
                         </div>
                         <div class="flex items-center gap-1.5 sm:gap-2">

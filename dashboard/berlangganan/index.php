@@ -50,14 +50,14 @@ include __DIR__ . '/../header.php';
             <!-- Page Header -->
             <div class="mb-6 sm:mb-8 relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-slate-200/60 shadow-lg shadow-slate-200/50">
                 <!-- Decorative gradient -->
-                <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/60 via-transparent to-teal-50/40 pointer-events-none"></div>
-                <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none"></div>
-                <div class="absolute bottom-0 left-0 w-48 h-48 bg-teal-200/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl pointer-events-none"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-red-50/60 via-transparent to-red-50/40 pointer-events-none"></div>
+                <div class="absolute top-0 right-0 w-64 h-64 bg-red-200/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-red-200/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl pointer-events-none"></div>
 
                 <div class="relative px-5 sm:px-6 py-5 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
                     <!-- Left: Title block -->
                     <div class="flex items-start sm:items-center gap-4">
-                        <div class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 ring-4 ring-emerald-500/10">
+                        <div class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-red-600 flex items-center justify-center shadow-lg ring-4 ring-red-500/10">
                             <i class="fas fa-envelope-open-text text-white text-xl sm:text-2xl"></i>
                         </div>
                         <div>
@@ -139,7 +139,7 @@ include __DIR__ . '/../header.php';
                                         </td>
                                         <td class="px-4 sm:px-6 py-4">
                                             <div class="flex items-center gap-3">
-                                                <div class="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                                                <div class="h-8 w-8 rounded-full bg-red-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
                                                     <?php echo strtoupper(substr($item['email'], 0, 1)); ?>
                                                 </div>
                                                 <div class="min-w-0">
@@ -155,7 +155,7 @@ include __DIR__ . '/../header.php';
                                             </div>
                                         </td>
                                         <td class="px-4 sm:px-6 py-4 hidden md:table-cell">
-                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold shadow-sm bg-blue-100 text-blue-700 border border-blue-200">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold shadow-sm bg-red-100 text-red-700 border border-red-200">
                                                 <?php echo htmlspecialchars($item['action'] ?? 'subscribe_newsletter'); ?>
                                             </span>
                                         </td>
@@ -178,7 +178,7 @@ include __DIR__ . '/../header.php';
                                                 ?>
                                                 <a href="<?php echo $emailLink; ?>"
                                                     target="_blank"
-                                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                     title="Kirim Email">
                                                     <i class="fas fa-envelope"></i>
                                                 </a>
@@ -216,7 +216,7 @@ include __DIR__ . '/../header.php';
                                 </a>
                             <?php endif; ?>
                             <?php if ($page < $totalPages): ?>
-                                <a href="?page=<?php echo $page + 1; ?>" class="px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg hover:shadow-lg transition-all">
+                                <a href="?page=<?php echo $page + 1; ?>" class="px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 hover:shadow-lg transition-all">
                                     Selanjutnya <i class="fas fa-chevron-right ml-1"></i>
                                 </a>
                             <?php endif; ?>

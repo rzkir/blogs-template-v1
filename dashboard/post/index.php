@@ -86,13 +86,13 @@ include __DIR__ . '/../header.php';
         <div class="container mx-auto animate-fade-in">
             <!-- Page Header -->
             <div class="mb-6 sm:mb-8 relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-slate-200/60 shadow-lg shadow-slate-200/50">
-                <div class="absolute inset-0 bg-gradient-to-br from-amber-50/60 via-transparent to-sky-50/40 pointer-events-none"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-amber-50/60 via-transparent to-red-50/40 pointer-events-none"></div>
                 <div class="absolute top-0 right-0 w-64 h-64 bg-amber-200/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none"></div>
-                <div class="absolute bottom-0 left-0 w-48 h-48 bg-sky-200/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-red-200/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl pointer-events-none"></div>
 
                 <div class="relative px-5 sm:px-6 py-5 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
                     <div class="flex items-start sm:items-center gap-4">
-                        <div class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/25 ring-4 ring-sky-500/10">
+                        <div class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-red-600 flex items-center justify-center shadow-lg ring-4 ring-red-500/10">
                             <i class="fas fa-newspaper text-white text-xl sm:text-2xl"></i>
                         </div>
                         <div>
@@ -116,7 +116,7 @@ include __DIR__ . '/../header.php';
                             <span class="text-slate-500 text-sm">posts</span>
                         </div>
                         <a href="/dashboard/post/create.php"
-                            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-blue-600 rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+                            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
                             <i class="fas fa-plus"></i>
                             <span>Tambah Post</span>
                         </a>
@@ -216,7 +216,7 @@ include __DIR__ . '/../header.php';
                                     <tr class="hover:bg-slate-50/50 transition-colors duration-150 <?php echo $index % 2 === 0 ? 'bg-white/50' : ''; ?>">
                                         <td class="px-4 sm:px-6 py-4">
                                             <div class="flex items-center gap-3">
-                                                <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                                                <div class="h-10 w-10 rounded-lg bg-red-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
                                                     <?php echo strtoupper(substr($post['title'], 0, 1)); ?>
                                                 </div>
                                                 <div class="min-w-0">
@@ -340,7 +340,7 @@ include __DIR__ . '/../header.php';
                                         $pageUrl = '/dashboard/post/index.php?' . http_build_query($pageParams);
                                         ?>
                                         <?php if ((int)$i === (int)$currentPage): ?>
-                                            <span class="px-3 py-2 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-blue-600 rounded-lg shadow-md">
+                                            <span class="px-3 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg shadow-md">
                                                 <?php echo $i; ?>
                                             </span>
                                         <?php else: ?>

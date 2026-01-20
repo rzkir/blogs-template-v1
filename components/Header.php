@@ -273,23 +273,23 @@ function isActiveLink($path, $categoryId = null)
                     <div class="flex items-center gap-1 sm:gap-2">
                         <!-- Theme Switcher -->
                         <div class="relative" id="themeSwitcher">
-                            <button type="button" id="themeToggleBtn" class="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                                <i id="themeIcon" class="fas fa-sun text-gray-600 dark:text-gray-300 text-sm sm:text-base"></i>
+                            <button type="button" id="themeToggleBtn" class="p-1.5 sm:p-2 hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                <i id="themeIcon" class="fas fa-sun text-gray-600 dark:text-gray-300 text-sm sm:text-base hover:text-red-600"></i>
                             </button>
                             <!-- Theme Dropdown -->
                             <div id="themeDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                                 <div class="py-2">
-                                    <button type="button" data-theme="system" class="theme-option w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors">
+                                    <button type="button" data-theme="system" class="theme-option w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 flex items-center gap-3 transition-colors">
                                         <i class="fas fa-desktop w-5"></i>
                                         <span>System</span>
                                         <i class="fas fa-check ml-auto theme-check hidden text-red-600"></i>
                                     </button>
-                                    <button type="button" data-theme="light" class="theme-option w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors">
+                                    <button type="button" data-theme="light" class="theme-option w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 flex items-center gap-3 transition-colors">
                                         <i class="fas fa-sun w-5"></i>
                                         <span>Light</span>
                                         <i class="fas fa-check ml-auto theme-check hidden text-red-600"></i>
                                     </button>
-                                    <button type="button" data-theme="dark" class="theme-option w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors">
+                                    <button type="button" data-theme="dark" class="theme-option w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 flex items-center gap-3 transition-colors">
                                         <i class="fas fa-moon w-5"></i>
                                         <span>Dark</span>
                                         <i class="fas fa-check ml-auto theme-check hidden text-red-600"></i>
@@ -297,8 +297,8 @@ function isActiveLink($path, $categoryId = null)
                                 </div>
                             </div>
                         </div>
-                        <button type="button" class="md:hidden p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors" id="mobileSearchBtn">
-                            <i class="fas fa-search text-gray-600 dark:text-gray-300 text-sm sm:text-base"></i>
+                        <button type="button" class="md:hidden p-1.5 sm:p-2 hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg transition-colors" id="mobileSearchBtn">
+                            <i class="fas fa-search text-gray-600 dark:text-gray-300 text-sm sm:text-base hover:text-red-600"></i>
                         </button>
                     </div>
                 </div>

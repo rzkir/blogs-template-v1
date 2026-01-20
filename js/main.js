@@ -1505,4 +1505,215 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     })();
+
+    //======================= Dashboard: Post Statistics Charts =======================//
+    (function () {
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js is not loaded. Charts will not be displayed.');
+            return;
+        }
+
+        // Check if chart data exists
+        if (!window.postsChartData) {
+            return;
+        }
+
+        const statusData = window.postsChartData.status;
+        const categoryData = window.postsChartData.category;
+        const monthData = window.postsChartData.month;
+        const viewsData = window.postsChartData.views;
+
+        // Status Chart (Doughnut)
+        const statusChartEl = document.getElementById('statusChart');
+        if (statusChartEl && statusData.labels.length > 0 && statusData.data.length > 0) {
+            new Chart(statusChartEl, {
+                type: 'doughnut',
+                data: {
+                    labels: statusData.labels.map(s => s.charAt(0).toUpperCase() + s.slice(1)),
+                    datasets: [{
+                        data: statusData.data,
+                        backgroundColor: [
+                            'rgba(34, 197, 94, 0.8)',  // green for published
+                            'rgba(234, 179, 8, 0.8)',  // yellow for draft
+                            'rgba(148, 163, 184, 0.8)' // slate for archived
+                        ],
+                        borderColor: [
+                            'rgb(34, 197, 94)',
+                            'rgb(234, 179, 8)',
+                            'rgb(148, 163, 184)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Category Chart (Bar)
+        const categoryChartEl = document.getElementById('categoryChart');
+        if (categoryChartEl && categoryData.labels.length > 0 && categoryData.data.length > 0) {
+            new Chart(categoryChartEl, {
+                type: 'bar',
+                data: {
+                    labels: categoryData.labels,
+                    datasets: [{
+                        label: 'Jumlah Post',
+                        data: categoryData.data,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return 'Jumlah: ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Month Chart (Line)
+        const monthChartEl = document.getElementById('monthChart');
+        if (monthChartEl && monthData.labels.length > 0 && monthData.data.length > 0) {
+            new Chart(monthChartEl, {
+                type: 'line',
+                data: {
+                    labels: monthData.labels,
+                    datasets: [{
+                        label: 'Jumlah Post',
+                        data: monthData.data,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: 'rgb(34, 197, 94)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return 'Jumlah: ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Views Chart (Line)
+        const viewsChartEl = document.getElementById('viewsChart');
+        if (viewsChartEl && viewsData && viewsData.labels.length > 0 && viewsData.data.length > 0) {
+            new Chart(viewsChartEl, {
+                type: 'line',
+                data: {
+                    labels: viewsData.labels,
+                    datasets: [{
+                        label: 'Total Views',
+                        data: viewsData.data,
+                        borderColor: 'rgb(99, 102, 241)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: 'rgb(99, 102, 241)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return 'Views: ' + context.parsed.y.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return value.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    })();
 });

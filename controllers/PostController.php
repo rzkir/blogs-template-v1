@@ -119,6 +119,7 @@ class PostController
                 c.categories_id as category_slug,
                 ac.fullname,
                 ac.email,
+                ac.picture,
                 GROUP_CONCAT(DISTINCT t.id) as tag_ids,
                 GROUP_CONCAT(DISTINCT t.name) as tag_names
             FROM `posts` p
@@ -232,7 +233,8 @@ class PostController
                 c.name as category_name,
                 c.categories_id as category_slug,
                 ac.fullname,
-                ac.email
+                ac.email,
+                ac.picture
             FROM `posts` p
             LEFT JOIN `categories` c ON p.categories_id = c.id
             LEFT JOIN `accounts` ac ON p.user_id = ac.id
@@ -439,7 +441,8 @@ class PostController
                 c.name as category_name,
                 c.categories_id as category_slug,
                 ac.fullname,
-                ac.email
+                ac.email,
+                ac.picture
             FROM `posts` p
             LEFT JOIN `categories` c ON p.categories_id = c.id
             LEFT JOIN `accounts` ac ON p.user_id = ac.id
@@ -474,6 +477,7 @@ class PostController
                 c.categories_id as category_slug,
                 ac.fullname,
                 ac.email,
+                ac.picture,
                 GROUP_CONCAT(DISTINCT t.id) as tag_ids,
                 GROUP_CONCAT(DISTINCT t.name) as tag_names
             FROM `posts` p
@@ -521,6 +525,7 @@ class PostController
                 c.categories_id as category_slug,
                 ac.fullname,
                 ac.email,
+                ac.picture,
                 GROUP_CONCAT(DISTINCT t2.id) as tag_ids,
                 GROUP_CONCAT(DISTINCT t2.name) as tag_names
             FROM `posts` p
@@ -572,6 +577,7 @@ class PostController
                 c.categories_id as category_slug,
                 ac.fullname,
                 ac.email,
+                ac.picture,
                 GROUP_CONCAT(DISTINCT t.id) as tag_ids,
                 GROUP_CONCAT(DISTINCT t.name) as tag_names
             FROM `posts` p
@@ -723,6 +729,7 @@ class PostController
                 c.categories_id as category_slug,
                 ac.fullname,
                 ac.email,
+                ac.picture,
                 GROUP_CONCAT(DISTINCT t.id) as tag_ids,
                 GROUP_CONCAT(DISTINCT t.name) as tag_names
             FROM `posts` p
@@ -771,6 +778,7 @@ class PostController
                 c.categories_id as category_slug,
                 ac.fullname,
                 ac.email,
+                ac.picture,
                 GROUP_CONCAT(DISTINCT t.id) as tag_ids,
                 GROUP_CONCAT(DISTINCT t.name) as tag_names
             FROM `posts` p

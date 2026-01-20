@@ -18,7 +18,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     <link rel="stylesheet" href="/style/style.css" />
 </head>
 
-<body class="bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 min-h-screen">
+<body class="bg-gradient-to-br from-slate-50 via-red-50/30 to-slate-50 min-h-screen">
     <!-- Mobile Sidebar Overlay -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-[45] lg:hidden hidden transition-opacity duration-300"></div>
 
@@ -36,6 +36,7 @@ unset($_SESSION['success'], $_SESSION['error']);
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="/js/ai-endpoint.js"></script>
     <script src="/js/main.js"></script>
     <script src="/js/toast.js"></script>

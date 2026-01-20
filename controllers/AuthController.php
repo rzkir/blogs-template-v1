@@ -257,7 +257,7 @@ class AuthController
 
         try {
             // Cek apakah input adalah email atau fullname
-            $stmt = $this->db->prepare("SELECT id, fullname, email, password, role FROM `accounts` WHERE email = ? OR fullname = ? LIMIT 1");
+            $stmt = $this->db->prepare("SELECT id, fullname, email, password, role, picture FROM `accounts` WHERE email = ? OR fullname = ? LIMIT 1");
             $stmt->bind_param('ss', $email, $email);
             $stmt->execute();
             $user = $stmt->get_result()->fetch_assoc();
@@ -299,6 +299,7 @@ class AuthController
                 'fullname' => $user['fullname'],
                 'email'    => $user['email'],
                 'role'     => $user['role'],
+                'picture'  => $user['picture'] ?? null,
             ];
 
             $this->log((int)$user['id'], 'login_success', 'Login admin berhasil untuk email/nama ' . $email);
@@ -397,6 +398,83 @@ class AuthController
         } catch (Throwable $e) {
             error_log('Change name error: ' . $e->getMessage());
             return ['success' => false, 'message' => 'Terjadi kesalahan saat mengubah nama.', 'fullname' => null];
+        }
+    }
+
+    /**
+     * Change user picture helper.
+     * Returns array: ['success' => bool, 'message' => string, 'picture' => ?string]
+     */
+    public function changePicture(int $userId, ?array $file, ?string $existingPicture = null): array
+    {
+        // If no file uploaded, return error
+        if (empty($file['name']) || $file['error'] !== UPLOAD_ERR_OK) {
+            if ($file['error'] === UPLOAD_ERR_NO_FILE) {
+                return ['success' => false, 'message' => 'Silakan pilih gambar untuk diupload.', 'picture' => null];
+            }
+            return ['success' => false, 'message' => 'Gagal mengupload gambar. Error code: ' . $file['error'], 'picture' => null];
+        }
+
+        // Validate file type
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $fileType = $file['type'];
+        if (!in_array($fileType, $allowedTypes)) {
+            return ['success' => false, 'message' => 'Format gambar tidak didukung. Gunakan JPG, PNG, GIF, atau WEBP.', 'picture' => null];
+        }
+
+        // Validate file size (max 5MB)
+        $maxSize = 5 * 1024 * 1024; // 5MB in bytes
+        if ($file['size'] > $maxSize) {
+            return ['success' => false, 'message' => 'Ukuran gambar terlalu besar. Maksimal 5MB.', 'picture' => null];
+        }
+
+        try {
+            // Create upload directory if not exists
+            $uploadDir = __DIR__ . '/../uploads/images/';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            // Generate unique filename
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = time() . '_' . uniqid() . '.' . $extension;
+            $uploadPath = $uploadDir . $filename;
+
+            // Move uploaded file
+            if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                return ['success' => false, 'message' => 'Gagal menyimpan gambar.', 'picture' => null];
+            }
+
+            // Return relative path for database
+            $picturePath = '/uploads/images/' . $filename;
+
+            // Update database
+            $stmt = $this->db->prepare("UPDATE `accounts` SET picture = ?, updated_at = NOW() WHERE id = ?");
+            $stmt->bind_param('si', $picturePath, $userId);
+            $stmt->execute();
+            $affected = $stmt->affected_rows;
+            $stmt->close();
+
+            // Delete old image if exists
+            if ($existingPicture && $existingPicture !== '') {
+                $oldImagePath = __DIR__ . '/..' . $existingPicture;
+                if (file_exists($oldImagePath)) {
+                    @unlink($oldImagePath);
+                }
+            }
+
+            $this->log($userId, 'change_picture', 'User changed profile picture');
+
+            if ($affected < 0) {
+                // If update failed, delete the uploaded file
+                @unlink($uploadPath);
+                return ['success' => false, 'message' => 'Gagal memperbarui gambar profil.', 'picture' => null];
+            }
+
+            return ['success' => true, 'message' => 'Gambar profil berhasil diperbarui.', 'picture' => $picturePath];
+        } catch (Throwable $e) {
+            error_log('Change picture error: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Terjadi kesalahan saat mengubah gambar profil.', 'picture' => null];
         }
     }
 
