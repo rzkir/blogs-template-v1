@@ -21,8 +21,9 @@ if (empty($tagSlug)) {
 $tag = $tagsController->getBySlug($tagSlug);
 
 if (!$tag) {
-    // Tag not found, redirect to home
-    header('Location: /');
+    // Tag not found
+    http_response_code(404);
+    include __DIR__ . '/../404.php';
     exit;
 }
 

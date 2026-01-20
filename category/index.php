@@ -21,8 +21,9 @@ if (empty($categorySlug)) {
 $category = $categoriesController->getBySlug($categorySlug);
 
 if (!$category) {
-    // Category not found, redirect to home
-    header('Location: /');
+    // Category not found
+    http_response_code(404);
+    include __DIR__ . '/../404.php';
     exit;
 }
 

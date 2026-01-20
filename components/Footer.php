@@ -24,7 +24,7 @@ if (!isset($footerCategories)) {
             <div class="sm:col-span-2 lg:col-span-1">
                 <a href="/" class="inline-flex items-center gap-2 mb-4 group">
                     <span class="footer-logo">
-                        <i class="fas fa-newspaper text-white"></i>
+                        <img src="/favicon.svg" alt="Blog News" width="20" height="20" class="w-5 h-5">
                     </span>
                     <span class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">Blog News</span>
                 </a>
@@ -109,9 +109,9 @@ if (!isset($footerCategories)) {
                     &copy; 2026 - <?php echo date('Y'); ?> Blog News. All rights reserved.
                 </p>
                 <div class="flex flex-wrap justify-center items-center gap-4 md:gap-6 order-1 md:order-2">
-                    <a href="/" class="footer-legal-link">Kebijakan Privasi</a>
-                    <a href="/" class="footer-legal-link">Syarat & Ketentuan</a>
-                    <a href="/" class="footer-legal-link">Disclaimer</a>
+                    <a href="/kebijakan-privasi" class="footer-legal-link">Kebijakan Privasi</a>
+                    <a href="/syarat-ketentuan" class="footer-legal-link">Syarat & Ketentuan</a>
+                    <a href="/disclaimer" class="footer-legal-link">Disclaimer</a>
                 </div>
             </div>
         </div>

@@ -162,7 +162,9 @@ class AuthController
 
     public function register(): void
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
         $fullname        = trim($_POST['fullname'] ?? '');
         $email           = trim($_POST['email'] ?? '');
@@ -172,28 +174,28 @@ class AuthController
         if ($fullname === '' || $email === '' || $password === '' || $confirmPassword === '') {
             $_SESSION['error'] = 'Semua field wajib diisi.';
             $this->log(null, 'register_failed', 'Field tidak lengkap untuk email ' . $email);
-            header('Location: register.php');
+            header('Location: /register.php');
             exit;
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = 'Format email tidak valid.';
             $this->log(null, 'register_failed', 'Format email tidak valid: ' . $email);
-            header('Location: register.php');
+            header('Location: /register.php');
             exit;
         }
 
         if ($password !== $confirmPassword) {
             $_SESSION['error'] = 'Konfirmasi password tidak sama.';
             $this->log(null, 'register_failed', 'Konfirmasi password tidak sama untuk email ' . $email);
-            header('Location: register.php');
+            header('Location: /register.php');
             exit;
         }
 
         if (strlen($password) < 6) {
             $_SESSION['error'] = 'Password minimal 6 karakter.';
             $this->log(null, 'register_failed', 'Password terlalu pendek untuk email ' . $email);
-            header('Location: register.php');
+            header('Location: /register.php');
             exit;
         }
 
@@ -207,7 +209,7 @@ class AuthController
                 $stmt->close();
                 $_SESSION['error'] = 'Email sudah terdaftar.';
                 $this->log(null, 'register_failed', 'Email sudah terdaftar: ' . $email);
-                header('Location: register.php');
+                header('Location: /register.php');
                 exit;
             }
             $stmt->close();
@@ -223,20 +225,22 @@ class AuthController
             $this->log($newUserId, 'register_success', 'Registrasi admin baru: ' . $email);
 
             $_SESSION['success'] = 'Registrasi berhasil. Silakan login.';
-            header('Location: login');
+            header('Location: /login');
             exit;
         } catch (Throwable $e) {
             error_log('Register error: ' . $e->getMessage());
             $this->log(null, 'register_error', $e->getMessage());
             $_SESSION['error'] = 'Terjadi kesalahan pada server. Coba lagi nanti.';
-            header('Location: register.php');
+            header('Location: /register.php');
             exit;
         }
     }
 
     public function login(): void
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
         $email    = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
@@ -245,13 +249,13 @@ class AuthController
         $lock = $this->getIpLockState($ip);
         if ($lock['blocked']) {
             $_SESSION['error'] = 'Terlalu banyak percobaan login gagal dari IP ini. Coba lagi setelah 15 menit.';
-            header('Location: login');
+            header('Location: /login');
             exit;
         }
 
         if ($email === '' || $password === '') {
             $_SESSION['error'] = 'Email/Nama lengkap dan password wajib diisi.';
-            header('Location: login');
+            header('Location: /login');
             exit;
         }
 
@@ -280,14 +284,14 @@ class AuthController
                     $_SESSION['error'] = 'Email/Nama lengkap atau password salah. Sisa percobaan: ' . $remaining . 'x.';
                 }
 
-                header('Location: login');
+                header('Location: /login');
                 exit;
             }
 
             if ($user['role'] !== 'admin') {
                 $_SESSION['error'] = 'Akses ditolak. Akun ini bukan admin.';
                 $this->log((int)$user['id'], 'login_denied', 'Role bukan admin untuk email/nama ' . $email);
-                header('Location: login');
+                header('Location: /login');
                 exit;
             }
 
@@ -311,7 +315,7 @@ class AuthController
             error_log('Login error: ' . $e->getMessage());
             $this->log(null, 'login_error', $e->getMessage());
             $_SESSION['error'] = 'Terjadi kesalahan pada server. Coba lagi nanti.';
-            header('Location: login');
+            header('Location: /login');
             exit;
         }
     }
@@ -480,7 +484,9 @@ class AuthController
 
     public function logout(): void
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $userId = $_SESSION['user']['id'] ?? null;
         $this->log($userId, 'logout', 'User logged out');
         session_unset();

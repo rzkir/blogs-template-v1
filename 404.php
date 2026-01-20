@@ -1,5 +1,10 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Ensure correct HTTP status for 404 page
+http_response_code(404);
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/controllers/PostController.php';
 require_once __DIR__ . '/controllers/CategoriesController.php';
@@ -170,20 +175,20 @@ include __DIR__ . '/components/Header.php';
         <?php endif; ?>
 
         <!-- Help Section -->
-        <div class="mt-12 bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-8 text-center">
-            <i class="fas fa-question-circle text-4xl text-red-600 mb-4"></i>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Butuh Bantuan?</h3>
-            <p class="text-gray-600 mb-4">
+        <div class="mt-12 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-gray-900/30 border border-red-100/70 dark:border-red-900/30 rounded-2xl p-8 text-center">
+            <i class="fas fa-question-circle text-4xl text-red-600 dark:text-red-400 mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Butuh Bantuan?</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-4">
                 Jika Anda yakin halaman ini seharusnya ada, silakan hubungi kami atau laporkan masalah ini.
             </p>
             <div class="flex flex-wrap gap-3 justify-center">
                 <a href="mailto:support@example.com"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400 transition-colors shadow-sm">
                     <i class="fas fa-envelope"></i>
                     <span class="text-sm font-medium">Hubungi Kami</span>
                 </a>
                 <a href="/"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400 transition-colors shadow-sm">
                     <i class="fas fa-bug"></i>
                     <span class="text-sm font-medium">Laporkan Masalah</span>
                 </a>

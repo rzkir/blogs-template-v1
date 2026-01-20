@@ -1,5 +1,11 @@
 <?php
-session_start();
+require_once __DIR__ . '/../config/security.php';
+app_enforce_https();
+app_secure_session_start();
+$cspNonce = app_send_security_headers([
+    'noindex' => true,
+    'csp' => 'auth',
+]);
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../controllers/AuthController.php';
@@ -22,6 +28,8 @@ $attempts = $attemptStatus['attempts'];
 if ($isBlocked && $errorMessage === '') {
     $errorMessage = 'Terlalu banyak percobaan login gagal dari IP ini. Coba lagi setelah 15 menit.';
 }
+
+$csrfToken = app_csrf_get_token();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -29,17 +37,27 @@ if ($isBlocked && $errorMessage === '') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Admin - Blog Template V1</title>
+    <title>Login Admin - Blog News</title>
+    <meta name="robots" content="noindex, nofollow, noarchive">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
 </head>
 
-<body class="min-h-screen bg-slate-100 flex items-center justify-center py-8">
-    <div class="w-full max-w-md">
-        <div class="bg-white shadow-lg rounded-xl p-8">
-            <h1 class="text-2xl font-semibold text-slate-800 text-center mb-2">Login Admin</h1>
-            <p class="text-sm text-slate-500 text-center mb-6">Masuk untuk mengelola blog template v1.</p>
+<body class="min-h-screen flex items-center justify-center px-4 py-10 bg-slate-100" style="font-family: 'Inter', sans-serif;">
+    <div class="relative w-full max-w-md">
+        <!-- background decoration (pakai warna yang sudah ada: merah/abu) -->
+        <div aria-hidden="true" class="pointer-events-none absolute -inset-6 rounded-[28px] bg-gradient-to-br from-red-600/10 via-transparent to-transparent blur-2xl"></div>
+
+        <div class="relative bg-white shadow-xl rounded-2xl p-8 border border-slate-200">
+            <div class="mb-6">
+                <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-red-600 shadow-md">
+                    <span class="text-white text-lg font-extrabold">BN</span>
+                </div>
+                <h1 class="text-2xl font-bold text-slate-900 text-center mb-1">Login Admin</h1>
+                <p class="text-sm text-slate-500 text-center">Masuk untuk mengelola Blog News.</p>
+            </div>
 
             <?php if ($isBlocked): ?>
                 <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
@@ -47,24 +65,26 @@ if ($isBlocked && $errorMessage === '') {
                 </div>
             <?php endif; ?>
 
-            <form action="../process.php" method="POST" autocomplete="off" class="space-y-4"
+            <form action="/process.php" method="POST" autocomplete="on" class="space-y-4"
                 <?php echo $isBlocked ? 'onsubmit="return false;"' : ''; ?>>
                 <input type="hidden" name="action" value="login">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
                 <div>
-                    <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email atau Nama
+                    <label for="email" class="block text-sm font-semibold text-slate-700 mb-1">Email atau Nama
                         Lengkap</label>
-                    <input type="text" name="email" id="email" required <?php echo $isBlocked ? 'disabled' : ''; ?>
+                    <input type="text" name="email" id="email" required autocomplete="username"
+                        <?php echo $isBlocked ? 'disabled' : ''; ?>
                         placeholder="Masukkan email atau nama lengkap"
-                        class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none disabled:bg-slate-100 disabled:text-slate-400" />
+                        class="block w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20 disabled:bg-slate-100 disabled:text-slate-400" />
                 </div>
 
                 <div>
-                    <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                    <label for="password" class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
                     <div class="relative">
-                        <input type="password" name="password" id="password" required
+                        <input type="password" name="password" id="password" required autocomplete="current-password"
                             <?php echo $isBlocked ? 'disabled' : ''; ?>
-                            class="block w-full rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none disabled:bg-slate-100 disabled:text-slate-400" />
+                            class="block w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 pr-10 text-sm shadow-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20 disabled:bg-slate-100 disabled:text-slate-400" />
                         <button type="button" id="togglePassword" <?php echo $isBlocked ? 'disabled' : ''; ?>
                             class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
                             <svg id="eyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -86,33 +106,28 @@ if ($isBlocked && $errorMessage === '') {
                 </div>
 
                 <button type="submit" <?php echo $isBlocked ? 'disabled' : ''; ?>
-                    class="w-full inline-flex justify-center items-center rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                    class="w-full inline-flex justify-center items-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
                     <?php echo $isBlocked ? 'Login Disabled' : 'Masuk'; ?>
                 </button>
             </form>
-
-            <div class="mt-4 text-center">
-                <a href="../register.php" class="text-sm text-sky-600 hover:text-sky-700 hover:underline">Belum punya akun?
-                    Daftar admin</a>
-            </div>
         </div>
 
         <p class="mt-6 text-xs text-center text-slate-400">
-            &copy; <?php echo date('Y'); ?> Blog Template V1. All rights reserved.
+            &copy; <?php echo date('Y'); ?> Blog News. All rights reserved.
         </p>
     </div>
 
-    <script>
+    <script<?php echo $cspNonce ? ' nonce="' . htmlspecialchars($cspNonce, ENT_QUOTES) . '"' : ''; ?>>
         window.APP_MESSAGES = {
-            success: <?php echo json_encode($successMessage); ?>,
-            error: <?php echo json_encode($errorMessage); ?>,
+        success: <?php echo json_encode($successMessage); ?>,
+        error: <?php echo json_encode($errorMessage); ?>,
         };
-    </script>
+        </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="../js/main.js"></script>
-    <script src="../js/toast.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <script src="../js/main.js"></script>
+        <script src="../js/toast.js"></script>
 </body>
 
 </html>

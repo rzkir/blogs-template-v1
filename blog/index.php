@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../controllers/PostController.php';
 require_once __DIR__ . '/../controllers/CategoriesController.php';
@@ -11,8 +13,8 @@ $categoriesController = new CategoriesController($db);
 $slug = $_GET['slug'] ?? '';
 
 if (empty($slug)) {
-    // If no slug specified, redirect to home
-    header('Location: /');
+    // If no slug specified, show blog listing page
+    require __DIR__ . '/../blog.php';
     exit;
 }
 
@@ -20,14 +22,14 @@ if (empty($slug)) {
 $post = $controller->getBySlug($slug);
 
 if (!$post) {
-    // Post not found, redirect to 404
-    header('Location: /404.php');
+    // Post not found -> redirect to /404 (so URL changes)
+    header('Location: /404');
     exit;
 }
 
 // Only show published posts to public
 if ($post['status'] !== 'published' && (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin')) {
-    header('Location: /404.php');
+    header('Location: /404');
     exit;
 }
 

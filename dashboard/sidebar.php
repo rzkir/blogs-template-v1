@@ -126,7 +126,7 @@ $isDashboardActive = preg_match('#^/dashboard/?$|^/dashboard/index\.php$#', $req
             </button>
         </form>
         <div class="text-xs text-gray-500 text-center">
-            <p class="font-medium">&copy; <?php echo date('Y'); ?> Blog Template V1</p>
+            <p class="font-medium">&copy; <?php echo date('Y'); ?> Blog News</p>
             <p class="mt-1 text-gray-400">Version 1.0.0</p>
         </div>
     </div>

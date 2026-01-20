@@ -110,6 +110,8 @@ function isActiveLink($path, $categoryId = null)
     <meta property="og:site_name" content="<?php echo $siteName; ?>">
     <meta property="og:locale" content="id_ID">
 
+    <meta name="google-site-verification" content="u_aZGZcVuvZj2xrn6O0ub9Hf3uxQm_Ov5azeNYvColM" />
+
     <?php if (isset($post) && is_array($post)): ?>
         <meta property="article:published_time" content="<?php echo date('c', strtotime($post['created_at'])); ?>">
         <meta property="article:modified_time" content="<?php echo date('c', strtotime($post['updated_at'] ?? $post['created_at'])); ?>">
@@ -222,7 +224,7 @@ function isActiveLink($path, $categoryId = null)
                     <div class="breaking-news-ticker" id="breakingNewsTicker">
                         <?php if (!empty($breakingNews)): ?>
                             <?php foreach ($breakingNews as $news): ?>
-                                <a href="/blog/<?php echo htmlspecialchars($news['slug']); ?>" class="ticker-item">
+                                <a href="/blog/?slug=<?php echo htmlspecialchars(urlencode($news['slug'] ?? '')); ?>" class="ticker-item">
                                     <span class="text-sm font-medium">
                                         <i class="fas fa-circle text-xs text-yellow-300 mr-2"></i>
                                         <?php echo htmlspecialchars($news['title']); ?>
@@ -247,14 +249,12 @@ function isActiveLink($path, $categoryId = null)
             <!-- Logo and Search -->
             <div class="flex items-center justify-between py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center gap-2 sm:gap-3">
-                    <div class="flex items-center gap-1.5 sm:gap-2">
-                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-red-600 rounded flex items-center justify-center">
-                            <i class="fas fa-newspaper text-white text-base sm:text-xl"></i>
-                        </div>
-                        <h1 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
-                            <a href="/">Blog News</a>
-                        </h1>
-                    </div>
+                    <h1 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                        <a href="/" class="flex items-center gap-1.5 sm:gap-2">
+                            <img src="/favicon.svg" alt="Blog News" width="40" height="40" class="w-8 h-8 sm:w-10 sm:h-10">
+                            <span>Blog News</span>
+                        </a>
+                    </h1>
                 </div>
 
                 <div class="flex items-center gap-4">

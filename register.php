@@ -1,10 +1,18 @@
 <?php
-session_start();
+require_once __DIR__ . '/config/security.php';
+app_enforce_https();
+app_secure_session_start();
+$cspNonce = app_send_security_headers([
+    'noindex' => true,
+    'csp' => 'auth',
+]);
 
 // Ambil dan tampilkan pesan sukses / error dari session (jika ada)
 $successMessage = $_SESSION['success'] ?? '';
 $errorMessage   = $_SESSION['error'] ?? '';
 unset($_SESSION['success'], $_SESSION['error']);
+
+$csrfToken = app_csrf_get_token();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -12,7 +20,8 @@ unset($_SESSION['success'], $_SESSION['error']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Admin - PT Samson Sure</title>
+    <title>Register Admin - Blog News</title>
+    <meta name="robots" content="noindex, nofollow, noarchive">
     <link rel="icon" href="/favicon.ico">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,27 +33,28 @@ unset($_SESSION['success'], $_SESSION['error']);
     <div class="w-full max-w-md">
         <div class="bg-white shadow-lg rounded-xl p-8">
             <h1 class="text-2xl font-semibold text-slate-800 text-center mb-2">Register Admin</h1>
-            <p class="text-sm text-slate-500 text-center mb-6">Buat akun admin untuk mengelola company profile.</p>
+            <p class="text-sm text-slate-500 text-center mb-6">Buat akun admin untuk mengelola Blog News.</p>
 
-            <form action="process.php" method="POST" autocomplete="off" class="space-y-4">
+            <form action="/process.php" method="POST" autocomplete="on" class="space-y-4">
                 <input type="hidden" name="action" value="register">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
                 <div>
                     <label for="fullname" class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label>
-                    <input type="text" name="fullname" id="fullname" required
+                    <input type="text" name="fullname" id="fullname" required autocomplete="name"
                         class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none" />
                 </div>
 
                 <div>
                     <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                    <input type="email" name="email" id="email" required
+                    <input type="email" name="email" id="email" required autocomplete="email"
                         class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none" />
                 </div>
 
                 <div>
                     <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
                     <div class="relative">
-                        <input type="password" name="password" id="password" minlength="6" required
+                        <input type="password" name="password" id="password" minlength="6" required autocomplete="new-password"
                             class="block w-full rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none" />
                         <button type="button" data-toggle-password="password"
                             class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none">
@@ -63,7 +73,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <div>
                     <label for="confirm_password" class="block text-sm font-medium text-slate-700 mb-1">Konfirmasi Password</label>
                     <div class="relative">
-                        <input type="password" name="confirm_password" id="confirm_password" minlength="6" required
+                        <input type="password" name="confirm_password" id="confirm_password" minlength="6" required autocomplete="new-password"
                             class="block w-full rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none" />
                         <button type="button" data-toggle-password="confirm_password"
                             class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none">
@@ -85,28 +95,28 @@ unset($_SESSION['success'], $_SESSION['error']);
             </form>
 
             <div class="mt-4 text-center">
-                <a href="login.php" class="text-sm text-sky-600 hover:text-sky-700 hover:underline">Sudah punya akun? Login di sini</a>
+                <a href="/login" class="text-sm text-sky-600 hover:text-sky-700 hover:underline">Sudah punya akun? Login di sini</a>
             </div>
         </div>
 
         <p class="mt-6 text-xs text-center text-slate-400">
-            &copy; <?php echo date('Y'); ?> PT Samson Sure. All rights reserved.
+            &copy; <?php echo date('Y'); ?> Blog News. All rights reserved.
         </p>
     </div>
 
     <!-- Inject session messages into JS -->
-    <script>
+    <script<?php echo $cspNonce ? ' nonce="' . htmlspecialchars($cspNonce, ENT_QUOTES) . '"' : ''; ?>>
         window.APP_MESSAGES = {
-            success: <?php echo json_encode($successMessage); ?>,
-            error: <?php echo json_encode($errorMessage); ?>,
+        success: <?php echo json_encode($successMessage); ?>,
+        error: <?php echo json_encode($errorMessage); ?>,
         };
-    </script>
+        </script>
 
-    <!-- Toastr JS (tanpa integrity agar tidak diblokir) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/toast.js"></script>
+        <!-- Toastr JS (tanpa integrity agar tidak diblokir) -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <script src="js/main.js"></script>
+        <script src="js/toast.js"></script>
 </body>
 
 </html>
